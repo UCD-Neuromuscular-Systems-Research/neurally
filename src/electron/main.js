@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
+import { isDev } from './util.js';
 
 const createMainWindow = () => {
   const mainWindow = new BrowserWindow({
@@ -7,7 +8,11 @@ const createMainWindow = () => {
     height: 600,
   });
 
-  mainWindow.loadFile(path.join(app.getAppPath() + '/dist-react/index.html'));
+  if (isDev()) {
+    mainWindow.loadURL('http://localhost:5123');
+  } else {
+    mainWindow.loadFile(path.join(app.getAppPath() + '/dist-react/index.html'));
+  }
 };
 
 app.whenReady().then(() => {
