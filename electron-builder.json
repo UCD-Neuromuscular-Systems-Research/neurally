@@ -1,0 +1,14 @@
+{
+  "appId": "com.kjinka.neurally",
+  "files": ["src/electron", "dist-react"],
+  "mac": {
+    "target": "dmg"
+  },
+  "linux": {
+    "target": "AppImage",
+    "category": "MedicalSoftware"
+  },
+  "win": {
+    "target": ["portable", "msi"]
+  }
+}
