@@ -1,6 +1,7 @@
 {
   "appId": "com.kjinka.neurally",
   "files": ["src/electron", "dist-react"],
+  "icon": "./desktopIcon.png",
   "mac": {
     "target": "dmg"
   },
