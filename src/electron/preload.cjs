@@ -8,5 +8,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
     console.log('something');
   },
   fileUpload: () => electron.ipcRenderer.invoke('openFileDialog'),
+  processAudio: (filePath) =>
+    electron.ipcRenderer.invoke('processAudio', filePath),
   invokeSomething: () => electron.ipcRenderer.invoke('invokeSomething'),
 });

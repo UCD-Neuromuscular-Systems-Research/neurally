@@ -25,6 +25,12 @@ function App() {
         setFilePath(selectedFilePath);
         console.log('Selected file:', selectedFilePath);
         alert(`Selected file: ${selectedFilePath}`);
+        try {
+          console.log(selectedFilePath);
+          await electron?.processAudio(selectedFilePath);
+        } catch (err) {
+          alert('Error processing wav file: ' + err);
+        }
       } else {
         alert('No file selected.');
       }
