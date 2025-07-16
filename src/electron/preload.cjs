@@ -7,5 +7,6 @@ electron.contextBridge.exposeInMainWorld('electron', {
     });
     console.log('something');
   },
+  fileUpload: () => electron.ipcRenderer.invoke('openFileDialog'),
   invokeSomething: () => electron.ipcRenderer.invoke('invokeSomething'),
 });

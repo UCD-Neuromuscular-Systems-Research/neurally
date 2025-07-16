@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 import { isDev } from './util.js';
 import { getPreloadPath } from './pathResolver.js';
@@ -23,6 +23,19 @@ const createMainWindow = () => {
 
   ipcMain.handle('invokeSomething', () => {
     return getStaticData();
+  });
+
+  ipcMain.handle('openFileDialog', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'Audio files', extensions: ['wav'] }],
+    });
+
+    if (canceled) {
+      return null;
+    }
+
+    return filePaths[0];
   });
 };
 
