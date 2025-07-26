@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Home from './components/Home';
 
 const electron = window.electron;
 
@@ -39,10 +40,11 @@ function App() {
 
   return (
     <>
-      <div>
+      <Home />
+      {/* <div>
         <button onClick={handleUpload}> Upload file</button>
         {filePath && <p>Uploaded: {filePath}</p>}
-      </div>
+      </div> */}
     </>
   );
 }
