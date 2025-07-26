@@ -12,8 +12,8 @@
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Initial Checks %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 import os
 import pandas as pd
-import neurally.src.scripts.HD.preProcessingAudioLongitudinal as preProcessingAudioLongitudinal  
-import neurally.src.scripts.HD.speechFeaturesAcousticLongitudinal as speechFeaturesAcousticLongitudinal
+import preProcessingAudioLongitudinal  
+import speechFeaturesAcousticLongitudinal
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import logging
 from multiprocessing import Queue

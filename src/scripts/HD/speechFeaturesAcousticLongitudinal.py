@@ -12,7 +12,7 @@ from scipy.signal import fftconvolve, find_peaks
 import re
 
 # Import Local Libraries:
-import neurally.src.scripts.HD.preProcessingAudioLongitudinal as preProcessingAudioLongitudinal
+import preProcessingAudioLongitudinal
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PRAAT FEATURES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Praat Features:
