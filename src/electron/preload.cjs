@@ -10,5 +10,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   fileUpload: () => electron.ipcRenderer.invoke('openFileDialog'),
   processAudio: (filePath) =>
     electron.ipcRenderer.invoke('processAudio', filePath),
+  processSingleFileHD: (testType, filePath) =>
+    electron.ipcRenderer.invoke('processSingleFileHD', testType, filePath),
   invokeSomething: () => electron.ipcRenderer.invoke('invokeSomething'),
 });
