@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
+import fs from 'node:fs';
 import { isDev } from './util.js';
 import { getPreloadPath } from './pathResolver.js';
 import { getStaticData, sendDataToBackend } from './backendData.js';
@@ -89,6 +90,20 @@ const createMainWindow = () => {
 
   ipcMain.handle('invokeSomething', () => {
     return getStaticData();
+  });
+
+  ipcMain.handle('getImageDataUrl', async (event, imagePath) => {
+    try {
+      const ext = path.extname(imagePath).toLowerCase();
+      let mimeType = 'image/png';
+      if (ext === '.jpg' || ext === '.jpeg') mimeType = 'image/jpeg';
+      const imageBuffer = fs.readFileSync(imagePath);
+      const base64 = imageBuffer.toString('base64');
+      return `data:${mimeType};base64,${base64}`;
+    } catch (error) {
+      console.error('Error reading image: ', error);
+      return null;
+    }
   });
 
   ipcMain.handle('processAudio', (event, filePath) => {

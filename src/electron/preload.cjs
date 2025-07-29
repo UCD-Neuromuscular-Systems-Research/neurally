@@ -7,6 +7,8 @@ electron.contextBridge.exposeInMainWorld('electron', {
     });
     console.log('something');
   },
+  getImageDataUrl: (imagePath) =>
+    electron.ipcRenderer.invoke('getImageDataUrl', imagePath),
   fileUpload: () => electron.ipcRenderer.invoke('openFileDialog'),
   processAudio: (filePath) =>
     electron.ipcRenderer.invoke('processAudio', filePath),

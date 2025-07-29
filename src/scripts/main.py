@@ -109,11 +109,16 @@ def process_sv_single(file_path, output_dir):
         shutil.rmtree(temp_dir)
 
         features_file = output_dir / f"features_{group}_{speechTest}.csv"
+        # The plot is saved as SV_<original_filename>.png in output_dir
+        plot_filename = f"SV_{Path(file_path).stem}.png"
+        plot_path = output_dir / plot_filename
+
         return {
             "status": "success",
             "test_type": "SV",
             "file": str(file_path),
             "output": str(features_file),
+            "plot_path": str(plot_path),
             "message": "SV processing completed",
             "features": df.to_dict(orient="records")
         }
@@ -144,6 +149,7 @@ def main():
     file_path = sys.argv[2]
 
     result = process_audio(file_path, test_type)
+    
     print(json.dumps(result))
 
 
