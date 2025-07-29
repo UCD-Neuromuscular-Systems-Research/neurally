@@ -1,5 +1,6 @@
 {
   "appId": "com.kjinka.neurally",
+  "asar": true,
   "files": ["src/electron", "dist-react"],
   "extraResources": [
     "src/scripts/venv",
