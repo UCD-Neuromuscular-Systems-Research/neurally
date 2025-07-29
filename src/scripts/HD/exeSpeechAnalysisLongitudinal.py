@@ -25,6 +25,13 @@ import audioProcessingHDLongitudinal
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Logger Set-Up %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Check if logging should be disabled in production
+if os.environ.get("NEURALLY_NO_LOG") == "1":
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+    logging.getLogger().handlers = [NullHandler()]
+    logging.getLogger().propagate = False
 # Set up logging to log to both console and file in execution script:
 logger = logging.getLogger()
 

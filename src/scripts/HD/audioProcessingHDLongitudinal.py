@@ -20,6 +20,22 @@ from multiprocessing import Queue
 from logging.handlers import QueueHandler, QueueListener
 import atexit
 
+if os.environ.get("NEURALLY_NO_LOG") == "1":
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+    # Disable ALL logging
+    logging.getLogger().handlers = [NullHandler()]
+    logging.getLogger().propagate = False
+    logging.getLogger().setLevel(logging.CRITICAL)
+    
+    # Also disable any existing loggers
+    for name in logging.root.manager.loggerDict:
+        logger = logging.getLogger(name)
+        logger.handlers = [NullHandler()]
+        logger.propagate = False
+        logger.setLevel(logging.CRITICAL)
+
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Logger Set-Up %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # UPDATED LOGGING METHOD:
 # Get module-specific logger instead of root logger:
@@ -32,35 +48,44 @@ log_queue = Queue(-1)
 queue_handler = QueueHandler(log_queue)
 logger.addHandler(queue_handler)
 
-# Set up log file & console handlers:
-# File Handlers:
-file_handler = logging.FileHandler('audio_processing.log')
-file_handler.setLevel(logging.INFO)
+# Set up log file & console handlers only if not in production mode:
+if os.environ.get("NEURALLY_NO_LOG") != "1":
+    # File Handlers:
+    file_handler = logging.FileHandler('audio_processing.log')
+    file_handler.setLevel(logging.INFO)
 
-# Console Handlers:
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
+    # Console Handlers:
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
 
-# Set up the formatter:
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    # Set up the formatter:
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
-# Apply the formatter to the handlers:
-file_handler.setFormatter(formatter)
-console_handler.setFormatter(formatter)
+    # Apply the formatter to the handlers:
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
 
-# Create a listener to process log messages from the queue and apply handlers:
-listener = QueueListener(log_queue, file_handler, console_handler)
-listener.start()
+    # Create a listener to process log messages from the queue and apply handlers:
+    listener = QueueListener(log_queue, file_handler, console_handler)
+    listener.start()
 
-# Register an exit handler to ensure the listener is stopped:
-def stop_listener():
-    if listener:
-        listener.stop()
+    # Register an exit handler to ensure the listener is stopped:
+    def stop_listener():
+        if listener:
+            listener.stop()
 
-atexit.register(stop_listener)
+    atexit.register(stop_listener)
 
-# Start to log messages:
-logger.info("Logging setup complete.")
+    # Start to log messages:
+    logger.info("Logging setup complete.")
+else:
+    # In production mode, just create a dummy listener that does nothing
+    class DummyListener:
+        def start(self):
+            pass
+        def stop(self):
+            pass
+    listener = DummyListener()
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Constants %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Define Subtest Names:

@@ -21,7 +21,14 @@ const processSingleFileHD = (testType, filePath) => {
   const scriptPath = path.join(base, 'src', 'scripts', 'main.py');
 
   return new Promise((resolve, reject) => {
-    const child = spawn(pythonExe, [scriptPath, testType, filePath]);
+    const env = { ...process.env };
+
+    if (app.isPackaged) {
+      // Disable logging in production
+      env.NEURALLY_NO_LOG = '1';
+    }
+
+    const child = spawn(pythonExe, [scriptPath, testType, filePath], { env });
     let output = '';
     let error = '';
 
