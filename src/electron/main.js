@@ -71,10 +71,13 @@ const processAudio = (filePath) => {
   });
 };
 
+// TODO: Make this normal size once, the app is properly styled responsively
 const createMainWindow = () => {
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1280,
+    height: 800,
+    fullscreen: true,
+    resizable: false,
     webPreferences: {
       preload: getPreloadPath(),
     },
