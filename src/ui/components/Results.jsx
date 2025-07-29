@@ -43,6 +43,43 @@ function Results() {
     }
   }, [location.state]);
 
+  function featuresToCSV(features) {
+    if (!features || features.length === 0) return '';
+    const keys = Object.keys(features[0]);
+    const header = keys.join(',');
+    const rows = features.map((f) => keys.map((k) => f[k]).join(','));
+    return [header, ...rows].join('\n');
+  }
+
+  const handleDownloadCSV = async () => {
+    if (!processingResult || !processingResult.features) return;
+    const csvContent = featuresToCSV(processingResult.features);
+    const defaultPath = 'results.csv';
+    const res = await window.electron.downloadResultsCSV(
+      csvContent,
+      defaultPath
+    );
+    if (res.success) {
+      alert('CSV saved!');
+    } else {
+      alert('Failed to save CSV: ' + (res.error || 'Unknown error'));
+    }
+  };
+
+  const handleDownloadImage = async () => {
+    if (!processingResult || !processingResult.plot_path) return;
+    const defaultPath = 'plot.png';
+    const res = await window.electron.downloadResultsImage(
+      processingResult.plot_path,
+      defaultPath
+    );
+    if (res.success) {
+      alert('Image saved!');
+    } else {
+      alert('Failed to save image: ' + (res.error || 'Unknown error'));
+    }
+  };
+
   const renderFeaturesTable = (features) => {
     if (!features || features.length === 0) return null;
 
@@ -61,9 +98,7 @@ function Results() {
                 <td className="border px-3 py-2 font-semibold">
                   {key.replace(/_/g, ' ')}
                 </td>
-                <td className="border px-3 py-2">
-                  {typeof value === 'number' ? value.toFixed(4) : value}
-                </td>
+                <td className="border px-3 py-2">{value}</td>
               </tr>
             );
           })}
@@ -158,14 +193,20 @@ function Results() {
         >
           Go Back
         </button>
-        <button
-          className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition cursor-pointer"
-          onClick={() => {
-            console.log('Download triggered');
-          }}
-        >
-          Download Results
-        </button>
+        <div className="flex justify-center space-x-4">
+          <button
+            className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition cursor-pointer"
+            onClick={handleDownloadCSV}
+          >
+            Download CSV
+          </button>
+          <button
+            className="bg-green-600 text-white px-6 py-2 rounded-xl hover:bg-green-700 transition cursor-pointer"
+            onClick={handleDownloadImage}
+          >
+            Download Plot Image
+          </button>
+        </div>
       </div>
     </div>
   );

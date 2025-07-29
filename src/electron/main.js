@@ -92,6 +92,45 @@ const createMainWindow = () => {
     return getStaticData();
   });
 
+  ipcMain.handle(
+    'downloadResultsCSV',
+    async (event, { csvContent, defaultPath }) => {
+      const win = BrowserWindow.getFocusedWindow();
+      const { filePath, canceled } = await dialog.showSaveDialog(win, {
+        title: 'Save Results as CSV',
+        defaultPath: defaultPath || 'results.csv',
+        filters: [{ name: 'CSV Files', extensions: ['csv'] }],
+      });
+      if (canceled || !filePath) return { success: false };
+      try {
+        fs.writeFileSync(filePath, csvContent, 'utf-8');
+        return { success: true, filePath };
+      } catch (err) {
+        return { success: false, error: err.message };
+      }
+    }
+  );
+
+  ipcMain.handle(
+    'downloadResultsImage',
+    async (event, { imagePath, defaultPath }) => {
+      const win = BrowserWindow.getFocusedWindow();
+      const ext = path.extname(imagePath).toLowerCase();
+      const { filePath, canceled } = await dialog.showSaveDialog(win, {
+        title: 'Save Plot Image',
+        defaultPath: defaultPath || `plot${ext}`,
+        filters: [{ name: 'Image Files', extensions: [ext.replace('.', '')] }],
+      });
+      if (canceled || !filePath) return { success: false };
+      try {
+        fs.copyFileSync(imagePath, filePath);
+        return { success: true, filePath };
+      } catch (err) {
+        return { success: false, error: err.message };
+      }
+    }
+  );
+
   ipcMain.handle('getImageDataUrl', async (event, imagePath) => {
     try {
       const ext = path.extname(imagePath).toLowerCase();

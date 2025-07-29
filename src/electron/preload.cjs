@@ -7,6 +7,16 @@ electron.contextBridge.exposeInMainWorld('electron', {
     });
     console.log('something');
   },
+  downloadResultsCSV: (csvContent, defaultPath) =>
+    electron.ipcRenderer.invoke('downloadResultsCSV', {
+      csvContent,
+      defaultPath,
+    }),
+  downloadResultsImage: (imagePath, defaultPath) =>
+    electron.ipcRenderer.invoke('downloadResultsImage', {
+      imagePath,
+      defaultPath,
+    }),
   getImageDataUrl: (imagePath) =>
     electron.ipcRenderer.invoke('getImageDataUrl', imagePath),
   fileUpload: () => electron.ipcRenderer.invoke('openFileDialog'),
