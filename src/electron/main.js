@@ -76,7 +76,7 @@ const createMainWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
-    fullscreen: true,
+    // fullscreen: true,
     resizable: false,
     webPreferences: {
       preload: getPreloadPath(),
