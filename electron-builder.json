@@ -1,7 +1,12 @@
 {
   "appId": "com.kjinka.neurally",
   "files": ["src/electron", "dist-react"],
-  "extraResources": ["src/electron/preload.cjs"],
+  "extraResources": [
+    "src/scripts/venv",
+    "src/scripts/main.py",
+    "src/scripts/HD",
+    "src/electron/preload.cjs"
+  ],
   "icon": "./desktopIcon.png",
   "mac": {
     "target": "dmg"
