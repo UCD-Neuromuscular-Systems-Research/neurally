@@ -1,25 +1,24 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'node:fs';
+import process from 'node:process';
 import { isDev } from './util.js';
 import { getPreloadPath } from './pathResolver.js';
 import { getStaticData, sendDataToBackend } from './backendData.js';
 import { spawn } from 'child_process';
 
 const processSingleFileHD = (testType, filePath) => {
+  const base =
+    process.env.NODE_ENV === 'development'
+      ? app.getAppPath()
+      : process.resourcesPath;
+
   const pythonExe =
     process.platform === 'win32'
-      ? path.join(
-          app.getAppPath(),
-          'src',
-          'scripts',
-          'venv',
-          'Scripts',
-          'python.exe'
-        )
-      : path.join(app.getAppPath(), 'src', 'scripts', 'venv', 'bin', 'python');
+      ? path.join(base, 'src', 'scripts', 'venv', 'Scripts', 'python.exe')
+      : path.join(base, 'src', 'scripts', 'venv', 'bin', 'python');
 
-  const scriptPath = path.join(app.getAppPath(), 'src', 'scripts', 'main.py');
+  const scriptPath = path.join(base, 'src', 'scripts', 'main.py');
 
   return new Promise((resolve, reject) => {
     const child = spawn(pythonExe, [scriptPath, testType, filePath]);
