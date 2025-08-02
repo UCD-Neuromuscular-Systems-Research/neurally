@@ -6,9 +6,10 @@ import time
 import csv
 
 sys.path.append(str(Path(__file__).parent / "HD"))
-
-# Import HD scripts
 import HD.audioProcessingHDLongitudinal as audio_processing
+
+TEST_TYPES = ["SV", "SR", "PR"]
+VALID_EXTENSIONS = ['.wav']
 
 def validate_audio_file(file_path):
     """Audio file validation"""
@@ -20,9 +21,8 @@ def validate_audio_file(file_path):
         return False, f"Path is not a file: {file_path}"
 
     file_extension = Path(file_path).suffix.lower()
-    valid_extensions = ['.wav']
 
-    if file_extension not in valid_extensions:
+    if file_extension not in VALID_EXTENSIONS:
         return False, f"Invalid file format: {file_extension}. Only .wav files are supported."
 
     file_size = os.path.getsize(file_path)
@@ -43,15 +43,79 @@ def validate_audio_file(file_path):
 
     return True, "File is valid"
 
+def setup_temp_directory(file_paths, test_type, output_dir):
+    """Setup temporary directory for processing"""
+    temp_dir = output_dir / "temp"
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    
+    for i, file_path in enumerate(file_paths):
+        unique_name = f"{test_type}_{i+1}_{Path(file_path).name}"
+        temp_file = temp_dir / unique_name
+        shutil.copy2(file_path, temp_file)
+
+    participant_info_path = temp_dir / "participantInfo.csv"
+    with open(participant_info_path, "w", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["participant"])
+        for i in range(len(file_paths)):
+            writer.writerow([f"File_{i+1}"])
+
+    return temp_dir
+
+def process_sv_files(file_paths, output_dir):
+    """Process Sustained Vowel files (single or multiple) using existing HD capabilities"""
+
+    speechTestType = "SV"
+
+    try:
+        temp_dir = setup_temp_directory(file_paths, speechTestType, output_dir)
+
+        dataPath = str(temp_dir)
+        group = "Multiple" if len(file_paths) > 1 else "Single"
+        figPath = str(output_dir)
+
+        filenames, files = audio_processing.load_audio_files(dataPath, speechTestType)
+        audio_processing.process_voiced_detection(files, filenames, speechTestType, str(output_dir), group, figPath)
+        df = audio_processing.process_feature_estimation(dataPath, str(output_dir), group, speechTestType)
+
+        shutil.rmtree(temp_dir)
+
+        plot_files = list(output_dir.glob("SV_*.png"))
+        
+        results = {
+            "status": "success",
+            "test_type": "SV",
+            "total_files": len(file_paths),
+            "files": []
+        }
+
+        for i, file_path in enumerate(file_paths):
+            file_result = {
+                "filename": Path(file_path).name,
+                "original_path": str(file_path),
+                "status": "success"
+            }
+            
+            if i < len(df):
+                file_result["features"] = df.iloc[i].to_dict()
+            
+            if i < len(plot_files):
+                file_result["plot_path"] = str(plot_files[i])
+            
+            results["files"].append(file_result)
+
+        return results
+
+    except Exception as e:
+        return {"error": f"SV processing failed: {str(e)}"}
+
 
 def process_audio_files(file_paths, test_type):
     """Process audio files (single or multiple) for specific test type (SV, SR, PR)"""
     try:
-        # Convert single file to list for unified processing
         if isinstance(file_paths, str):
             file_paths = [file_paths]
         
-        # Input validation for all files
         for file_path in file_paths:
             is_valid, message = validate_audio_file(file_path)
             if not is_valid:
@@ -60,14 +124,12 @@ def process_audio_files(file_paths, test_type):
         if test_type not in ["SV", "SR", "PR"]:
             return {"error": f"Invalid test type: {test_type}. Must be SV, SR, or PR."}
 
-        # Set up paths
         current_dir = Path(__file__).parent
         output_dir = current_dir / "output" / test_type
         output_dir.mkdir(parents=True, exist_ok=True)
 
         start_time = time.time()
 
-        # Process based on test type
         if test_type == 'SV':
             result = process_sv_files(file_paths, output_dir)
         elif test_type == 'SR':
@@ -84,77 +146,6 @@ def process_audio_files(file_paths, test_type):
     except Exception as e:
         return {"error": f"Error processing files: {str(e)}"}
 
-def process_sv_files(file_paths, output_dir):
-    """Process Sustained Vowel files (single or multiple) using existing HD capabilities"""
-    try:
-        temp_dir = output_dir / "temp"
-        temp_dir.mkdir(parents=True, exist_ok=True)
-
-        import shutil
-        # Copy all files to temp directory with proper naming
-        copied_files = []
-        for i, file_path in enumerate(file_paths):
-            # Create unique filename to avoid conflicts
-            unique_name = f"SV_{i+1}_{Path(file_path).name}"
-            temp_file = temp_dir / unique_name
-            shutil.copy2(file_path, temp_file)
-            copied_files.append(unique_name)
-
-        # Create participant info for all files
-        participant_info_path = temp_dir / "participantInfo.csv"
-        with open(participant_info_path, "w", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(["participant"])
-            for i in range(len(file_paths)):
-                writer.writerow([f"File_{i+1}"])
-
-        dataPath = str(temp_dir)
-        speechTest = "SV"
-        group = "Multiple" if len(file_paths) > 1 else "Single"
-        figPath = str(output_dir)
-
-        # Use existing HD multi-file processing
-        filenames, files = audio_processing.load_audio_files(dataPath, speechTest)
-        audio_processing.process_voiced_detection(files, filenames, speechTest, str(output_dir), group, figPath)
-        df = audio_processing.process_feature_estimation(dataPath, str(output_dir), group, speechTest)
-
-        # Clean up temp directory
-        shutil.rmtree(temp_dir)
-
-        # Get all plot files created
-        plot_files = list(output_dir.glob("SV_*.png"))
-        
-        # Create results structure
-        results = {
-            "status": "success",
-            "test_type": "SV",
-            "total_files": len(file_paths),
-            "files": []
-        }
-
-        # Add individual file results
-        for i, file_path in enumerate(file_paths):
-            file_result = {
-                "filename": Path(file_path).name,
-                "original_path": str(file_path),
-                "status": "success"
-            }
-            
-            # Add features for this file if available
-            if i < len(df):
-                file_result["features"] = df.iloc[i].to_dict()
-            
-            # Add plot file if available
-            if i < len(plot_files):
-                file_result["plot_path"] = str(plot_files[i])
-            
-            results["files"].append(file_result)
-
-        return results
-
-    except Exception as e:
-        return {"error": f"SV processing failed: {str(e)}"}
-
 def process_sr_files(file_paths, output_dir):
     """Process Syllable Repetition files (single or multiple)"""
     # TODO: Implement similar to process_sv_files but with "SR"
@@ -169,7 +160,7 @@ def main():
     if len(sys.argv) < 3:
         print("Usage: python main.py <test_type> <file_path>")
         print("Usage: python main.py <test_type> --multiple <file_path1|file_path2|...>")
-        print("Test types: SV, SR, PR")
+        print(f"Test types: {', '.join(TEST_TYPES)}")
         print("File format: WAV only")
         print("Examples:")
         print("  python main.py SV /path/to/audio.wav")
@@ -178,11 +169,10 @@ def main():
     
     test_type = sys.argv[1]
     
-    # Check if processing multiple files
     if len(sys.argv) > 3 and sys.argv[2] == '--multiple':
         file_paths = sys.argv[3].split('|')
     else:
-        file_paths = sys.argv[2]  # Single file as string
+        file_paths = sys.argv[2]
     
     result = process_audio_files(file_paths, test_type)
     print(json.dumps(result))
