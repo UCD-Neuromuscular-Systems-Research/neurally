@@ -97,34 +97,6 @@ const processMultipleFilesHD = async (testType, filePaths) => {
   });
 };
 
-const processAudio = (filePath) => {
-  const pythonExe =
-    process.platform === 'win32'
-      ? path.join(app.getAppPath(), 'src/python/venv/Scripts/python.exe')
-      : path.join(app.getAppPath(), 'src/python/venv/bin/python');
-  const scriptPath = path.join(app.getAppPath(), 'src/python/process_audio.py');
-  return new Promise((resolve, reject) => {
-    const child = spawn(pythonExe, [scriptPath, filePath]);
-    let output = '';
-    let error = '';
-    child.stdout.on('data', (data) => {
-      output += data.toString();
-    });
-
-    child.stderr.on('data', (data) => {
-      error += data.toString();
-    });
-
-    child.on('close', (code) => {
-      if (code === 0) {
-        resolve(output.trim());
-      } else {
-        reject(error || output);
-      }
-    });
-  });
-};
-
 // TODO: Make this normal size once, the app is properly styled responsively
 const createMainWindow = () => {
   const mainWindow = new BrowserWindow({
@@ -200,13 +172,6 @@ const createMainWindow = () => {
       console.error('Error reading image: ', error);
       return null;
     }
-  });
-
-  ipcMain.handle('processAudio', (event, filePath) => {
-    console.log(event);
-    processAudio(filePath)
-      .then((result) => console.log('Python output:', result))
-      .catch((err) => console.error('Python error:', err));
   });
 
   ipcMain.handle('processSingleFileHD', async (event, testType, filePath) => {

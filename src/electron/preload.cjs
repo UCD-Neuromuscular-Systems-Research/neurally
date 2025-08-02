@@ -20,8 +20,6 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getImageDataUrl: (imagePath) =>
     electron.ipcRenderer.invoke('getImageDataUrl', imagePath),
   fileUpload: () => electron.ipcRenderer.invoke('openFileDialog'),
-  processAudio: (filePath) =>
-    electron.ipcRenderer.invoke('processAudio', filePath),
   processSingleFileHD: (testType, filePath) =>
     electron.ipcRenderer.invoke('processSingleFileHD', testType, filePath),
   processMultipleFilesHD: (testType, filePaths) =>
