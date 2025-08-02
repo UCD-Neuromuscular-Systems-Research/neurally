@@ -7,34 +7,44 @@ import { getPreloadPath } from './pathResolver.js';
 import { getStaticData, sendDataToBackend } from './backendData.js';
 import { spawn } from 'child_process';
 
-const processSingleFileHD = (testType, filePath) => {
-  const base =
-    process.env.NODE_ENV === 'development'
-      ? app.getAppPath()
-      : process.resourcesPath;
+const PYTHON_PATHS = {
+  win32: path.join('src', 'scripts', 'venv', 'Scripts', 'python.exe'),
+  default: path.join('src', 'scripts', 'venv', 'bin', 'python'),
+};
 
-  const pythonExe =
-    process.platform === 'win32'
-      ? path.join(base, 'src', 'scripts', 'venv', 'Scripts', 'python.exe')
-      : path.join(base, 'src', 'scripts', 'venv', 'bin', 'python');
+const getBasePath = () =>
+  process.env.NODE_ENV === 'development'
+    ? app.getAppPath()
+    : process.resourcesPath;
 
-  const scriptPath = path.join(base, 'src', 'scripts', 'main.py');
+const getPythonExecutable = () => {
+  const base = getBasePath();
+  const pythonPath = PYTHON_PATHS[process.platform] || PYTHON_PATHS.default;
 
+  return path.join(base, pythonPath);
+};
+
+const getMainScriptPath = () => {
+  const base = getBasePath();
+  return path.join(base, 'src', 'scripts', 'main.py');
+};
+
+const createPythonProcess = (pythonExe, scriptPath, args, env = {}) => {
   return new Promise((resolve, reject) => {
-    const env = { ...process.env };
+    const processEnv = { ...process.env, ...env };
 
     if (app.isPackaged) {
-      // Disable logging in production
-      env.NEURALLY_NO_LOG = '1';
+      processEnv.NEURALLY_NO_LOG = '1';
     }
 
-    const child = spawn(pythonExe, [scriptPath, testType, filePath], { env });
+    const child = spawn(pythonExe, [scriptPath, ...args], { env: processEnv });
     let output = '';
     let error = '';
 
     child.stdout.on('data', (data) => {
       output += data.toString();
     });
+
     child.stderr.on('data', (data) => {
       error += data.toString();
     });
@@ -49,52 +59,15 @@ const processSingleFileHD = (testType, filePath) => {
   });
 };
 
-const processMultipleFilesHD = async (testType, filePaths) => {
-  const base =
-    process.env.NODE_ENV === 'development'
-      ? app.getAppPath()
-      : process.resourcesPath;
+const processHD = async (testType, filePaths, isMultiple = false) => {
+  const pythonExe = getPythonExecutable();
+  const scriptPath = getMainScriptPath();
 
-  const pythonExe =
-    process.platform === 'win32'
-      ? path.join(base, 'src', 'scripts', 'venv', 'Scripts', 'python.exe')
-      : path.join(base, 'src', 'scripts', 'venv', 'bin', 'python');
+  const args = isMultiple
+    ? [testType, '--multiple', filePaths.join('|')]
+    : [testType, filePaths];
 
-  const scriptPath = path.join(base, 'src', 'scripts', 'main.py');
-
-  return new Promise((resolve, reject) => {
-    const env = { ...process.env };
-
-    if (app.isPackaged) {
-      env.NEURALLY_NO_LOG = '1';
-    }
-
-    // Join file paths with a separator that Python can split
-    const filePathsString = filePaths.join('|');
-
-    const child = spawn(
-      pythonExe,
-      [scriptPath, testType, '--multiple', filePathsString],
-      { env }
-    );
-    let output = '';
-    let error = '';
-
-    child.stdout.on('data', (data) => {
-      output += data.toString();
-    });
-    child.stderr.on('data', (data) => {
-      error += data.toString();
-    });
-
-    child.on('close', (code) => {
-      if (code === 0) {
-        resolve(output.trim());
-      } else {
-        reject(error || output);
-      }
-    });
-  });
+  return createPythonProcess(pythonExe, scriptPath, args);
 };
 
 // TODO: Make this normal size once, the app is properly styled responsively
@@ -176,7 +149,7 @@ const createMainWindow = () => {
 
   ipcMain.handle('processSingleFileHD', async (event, testType, filePath) => {
     try {
-      const result = await processSingleFileHD(testType, filePath);
+      const result = await processHD(testType, filePath, false);
       console.log(result, 'Result main');
       return result;
     } catch (error) {
@@ -189,7 +162,7 @@ const createMainWindow = () => {
     'processMultipleFilesHD',
     async (event, testType, filePaths) => {
       try {
-        const result = await processMultipleFilesHD(testType, filePaths);
+        const result = await processHD(testType, filePaths, true);
         console.log(result, 'Multi-file result main');
         return result;
       } catch (error) {
