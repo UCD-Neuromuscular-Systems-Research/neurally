@@ -59,7 +59,7 @@ const createPythonProcess = (pythonExe, scriptPath, args, env = {}) => {
   });
 };
 
-const processHD = async (testType, filePaths, isMultiple = false) => {
+const executeHD = async (testType, filePaths, isMultiple = false) => {
   const pythonExe = getPythonExecutable();
   const scriptPath = getMainScriptPath();
 
@@ -147,30 +147,20 @@ const createMainWindow = () => {
     }
   });
 
-  ipcMain.handle('processSingleFileHD', async (event, testType, filePath) => {
+  ipcMain.handle('processHD', async (event, testType, filePaths) => {
     try {
-      const result = await processHD(testType, filePath, false);
-      console.log(result, 'Result main');
+      const isMultiple = Array.isArray(filePaths);
+      const result = await executeHD(testType, filePaths, isMultiple);
+      console.log(
+        result,
+        `${isMultiple ? 'Multi-file' : 'Single file'} result main`
+      );
       return result;
     } catch (error) {
       console.log('Python error: ', error);
       throw error;
     }
   });
-
-  ipcMain.handle(
-    'processMultipleFilesHD',
-    async (event, testType, filePaths) => {
-      try {
-        const result = await processHD(testType, filePaths, true);
-        console.log(result, 'Multi-file result main');
-        return result;
-      } catch (error) {
-        console.log('Python error: ', error);
-        throw error;
-      }
-    }
-  );
 
   ipcMain.handle('openFileDialog', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
