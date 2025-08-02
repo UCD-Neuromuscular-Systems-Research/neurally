@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import time
 import csv
+import shutil
 
 sys.path.append(str(Path(__file__).parent / "HD"))
 import HD.audioProcessingHDLongitudinal as audio_processing
