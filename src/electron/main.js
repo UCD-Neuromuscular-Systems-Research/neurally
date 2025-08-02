@@ -49,6 +49,54 @@ const processSingleFileHD = (testType, filePath) => {
   });
 };
 
+const processMultipleFilesHD = async (testType, filePaths) => {
+  const base =
+    process.env.NODE_ENV === 'development'
+      ? app.getAppPath()
+      : process.resourcesPath;
+
+  const pythonExe =
+    process.platform === 'win32'
+      ? path.join(base, 'src', 'scripts', 'venv', 'Scripts', 'python.exe')
+      : path.join(base, 'src', 'scripts', 'venv', 'bin', 'python');
+
+  const scriptPath = path.join(base, 'src', 'scripts', 'main.py');
+
+  return new Promise((resolve, reject) => {
+    const env = { ...process.env };
+
+    if (app.isPackaged) {
+      env.NEURALLY_NO_LOG = '1';
+    }
+
+    // Join file paths with a separator that Python can split
+    const filePathsString = filePaths.join('|');
+
+    const child = spawn(
+      pythonExe,
+      [scriptPath, testType, '--multiple', filePathsString],
+      { env }
+    );
+    let output = '';
+    let error = '';
+
+    child.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+    child.stderr.on('data', (data) => {
+      error += data.toString();
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve(output.trim());
+      } else {
+        reject(error || output);
+      }
+    });
+  });
+};
+
 const processAudio = (filePath) => {
   const pythonExe =
     process.platform === 'win32'
@@ -172,9 +220,23 @@ const createMainWindow = () => {
     }
   });
 
+  ipcMain.handle(
+    'processMultipleFilesHD',
+    async (event, testType, filePaths) => {
+      try {
+        const result = await processMultipleFilesHD(testType, filePaths);
+        console.log(result, 'Multi-file result main');
+        return result;
+      } catch (error) {
+        console.log('Python error: ', error);
+        throw error;
+      }
+    }
+  );
+
   ipcMain.handle('openFileDialog', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
-      properties: ['openFile'],
+      properties: ['openFiles'],
       filters: [{ name: 'Audio files', extensions: ['wav'] }],
     });
 
@@ -182,7 +244,7 @@ const createMainWindow = () => {
       return null;
     }
 
-    return filePaths[0];
+    return filePaths;
   });
 };
 

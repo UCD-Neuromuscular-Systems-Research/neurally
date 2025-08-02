@@ -24,5 +24,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
     electron.ipcRenderer.invoke('processAudio', filePath),
   processSingleFileHD: (testType, filePath) =>
     electron.ipcRenderer.invoke('processSingleFileHD', testType, filePath),
+  processMultipleFilesHD: (testType, filePaths) =>
+    electron.ipcRenderer.invoke('processMultipleFilesHD', testType, filePaths),
   invokeSomething: () => electron.ipcRenderer.invoke('invokeSomething'),
 });
