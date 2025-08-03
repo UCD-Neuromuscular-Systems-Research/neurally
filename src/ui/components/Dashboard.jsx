@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router';
 function Dashboard() {
   const { testType } = useParams();
   const navigate = useNavigate();
-  const [filePath, setFilePath] = useState(null);
+  const [filePaths, setFilePaths] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const SVFeatureList = [
@@ -29,23 +29,20 @@ function Dashboard() {
 
   const handleFileUpload = async () => {
     try {
-      const selectedFilePath = await window.electron.fileUpload();
-      if (selectedFilePath) {
-        setFilePath(selectedFilePath);
+      const selectedFilePaths = await window.electron.fileUpload();
+      if (selectedFilePaths && selectedFilePaths.length > 0) {
+        setFilePaths(selectedFilePaths);
       }
     } catch (error) {
       console.error('Error selecting file:', error);
     }
   };
 
-  const handleSingleFileProcessing = async () => {
-    if (filePath && testType) {
+  const handleFileProcessing = async () => {
+    if (filePaths.length > 0 && testType) {
       setIsProcessing(true);
       try {
-        const result = await window.electron.processSingleFileHD(
-          testType,
-          filePath
-        );
+        const result = await window.electron.processHD(testType, filePaths);
 
         // Try to clean the result before parsing
         let cleanResult = result;
@@ -72,7 +69,7 @@ function Dashboard() {
             state: {
               processingResult: parsedResult,
               testType: testType,
-              filePath: filePath,
+              filePaths: filePaths,
             },
           });
         } catch (parseError) {
@@ -84,7 +81,7 @@ function Dashboard() {
               error: `Failed to parse result: ${parseError.message}`,
               rawResult: cleanResult,
               testType: testType,
-              filePath: filePath,
+              filePath: filePaths,
             },
           });
         }
@@ -95,7 +92,7 @@ function Dashboard() {
           state: {
             error: error.message,
             testType: testType,
-            filePath: filePath,
+            filePath: filePaths,
           },
         });
       } finally {
@@ -148,22 +145,26 @@ function Dashboard() {
             onClick={handleFileUpload}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Select Audio File
+            Select Audio Files
           </button>
-          {filePath && (
+          {filePaths.length > 0 && (
             <div className="text-center">
               <p className="text-green-600 font-medium">
-                File selected: {filePath.split('/').pop()}
+                Files selected: {filePaths.length}
               </p>
-              <p className="text-sm text-gray-500">Path: {filePath}</p>
+              {filePaths.map((filePath, index) => (
+                <p key={index} className="text-sm text-gray-500">
+                  {index + 1}. {filePath.split('/').pop()}
+                </p>
+              ))}
             </div>
           )}
           <button
-            disabled={!filePath || isProcessing}
-            onClick={handleSingleFileProcessing}
+            disabled={filePaths.length === 0 || isProcessing}
+            onClick={handleFileProcessing}
             className={`w-48 px-6 py-2 rounded-xl transition
               ${
-                filePath && !isProcessing
+                filePaths.length > 0 && !isProcessing
                   ? 'bg-green-600 text-white hover:bg-green-700 cursor-pointer'
                   : 'bg-gray-300 text-gray-600 cursor-not-allowed'
               } flex items-center justify-center`}

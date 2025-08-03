@@ -164,8 +164,11 @@ const createMainWindow = () => {
 
   ipcMain.handle('openFileDialog', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
-      properties: ['openFiles'],
-      filters: [{ name: 'Audio files', extensions: ['wav'] }],
+      properties: ['openFile', 'multiSelections'],
+      filters: [
+        { name: 'WAV Audio Files', extensions: ['wav', 'WAV'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
     });
 
     if (canceled) {

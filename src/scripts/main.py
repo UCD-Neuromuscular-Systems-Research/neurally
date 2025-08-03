@@ -81,7 +81,8 @@ def process_sv_files(file_paths, output_dir):
 
         shutil.rmtree(temp_dir)
 
-        plot_files = list(output_dir.glob("SV_*.png"))
+        # Get all plot files and match them to original files
+        plot_files = list(output_dir.glob("*.png"))
         
         results = {
             "status": "success",
@@ -91,6 +92,7 @@ def process_sv_files(file_paths, output_dir):
         }
 
         for i, file_path in enumerate(file_paths):
+            original_filename = Path(file_path).stem  # filename without extension
             file_result = {
                 "filename": Path(file_path).name,
                 "original_path": str(file_path),
@@ -100,8 +102,15 @@ def process_sv_files(file_paths, output_dir):
             if i < len(df):
                 file_result["features"] = df.iloc[i].to_dict()
             
-            if i < len(plot_files):
-                file_result["plot_path"] = str(plot_files[i])
+            # Find the plot file that matches this original filename
+            matching_plot = None
+            for plot_file in plot_files:
+                if original_filename in plot_file.stem:
+                    matching_plot = plot_file
+                    break
+            
+            if matching_plot:
+                file_result["plot_path"] = str(matching_plot.absolute())
             
             results["files"].append(file_result)
 
