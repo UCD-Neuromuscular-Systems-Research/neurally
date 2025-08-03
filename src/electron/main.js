@@ -151,10 +151,6 @@ const createMainWindow = () => {
     try {
       const isMultiple = Array.isArray(filePaths);
       const result = await executeHD(testType, filePaths, isMultiple);
-      console.log(
-        result,
-        `${isMultiple ? 'Multi-file' : 'Single file'} result main`
-      );
       return result;
     } catch (error) {
       console.log('Python error: ', error);
