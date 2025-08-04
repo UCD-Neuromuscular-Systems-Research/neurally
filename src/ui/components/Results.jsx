@@ -247,10 +247,14 @@ function Results() {
                             if (res.success) {
                               alert('CSV saved!');
                             } else {
-                              alert(
-                                'Failed to save CSV: ' +
-                                  (res.error || 'Unknown error')
-                              );
+                              // Don't show error if user cancelled
+                              if (
+                                res.error &&
+                                !res.error.includes('cancelled') &&
+                                !res.error.includes('canceled')
+                              ) {
+                                alert('Failed to save CSV: ' + res.error);
+                              }
                             }
                           } catch (error) {
                             console.error('Error downloading CSV:', error);
@@ -292,10 +296,14 @@ function Results() {
                               if (res.success) {
                                 alert('Plot image saved!');
                               } else {
-                                alert(
-                                  'Failed to save plot: ' +
-                                    (res.error || 'Unknown error')
-                                );
+                                // Don't show error if user cancelled
+                                if (
+                                  res.error &&
+                                  !res.error.includes('cancelled') &&
+                                  !res.error.includes('canceled')
+                                ) {
+                                  alert('Failed to save plot: ' + res.error);
+                                }
                               }
                             } catch (error) {
                               console.error('Error downloading plot:', error);
