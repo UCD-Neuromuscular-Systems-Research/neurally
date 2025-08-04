@@ -71,74 +71,29 @@ function Results() {
     return [header, ...rows].join('\n');
   }
 
-  const handleDownloadCSV = async () => {
-    if (!processingResult) return;
+  const openPlotInNewTab = async (plotPath, filename) => {
+    try {
+      const dataUrl = await window.electron.getImageDataUrl(plotPath);
+      if (dataUrl) {
+        const response = await fetch(dataUrl);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
 
-    // Handle multi-file results
-    if (processingResult.files && processingResult.files.length > 0) {
-      const allFeatures = processingResult.files
-        .filter((file) => file.features)
-        .map((file) => file.features);
-
-      if (allFeatures.length > 0) {
-        const csvContent = featuresToCSV(allFeatures);
-        const defaultPath = 'results.csv';
-        const res = await window.electron.downloadResultsCSV(
-          csvContent,
-          defaultPath
-        );
-        if (res.success) {
-          alert('CSV saved!');
-        } else {
-          alert('Failed to save CSV: ' + (res.error || 'Unknown error'));
+        const newWindow = window.open(blobUrl, '_blank');
+        if (newWindow) {
+          setTimeout(() => {
+            newWindow.document.title = `${filename} - Voiced Detection Plot`;
+          }, 100);
         }
-      }
-    } else if (processingResult.features) {
-      // Handle single file results (backward compatibility)
-      const csvContent = featuresToCSV(processingResult.features);
-      const defaultPath = 'results.csv';
-      const res = await window.electron.downloadResultsCSV(
-        csvContent,
-        defaultPath
-      );
-      if (res.success) {
-        alert('CSV saved!');
-      } else {
-        alert('Failed to save CSV: ' + (res.error || 'Unknown error'));
-      }
-    }
-  };
 
-  const handleDownloadImage = async () => {
-    if (!processingResult) return;
-
-    // Handle multi-file results - download first plot
-    if (processingResult.files && processingResult.files.length > 0) {
-      const firstFile = processingResult.files[0];
-      if (firstFile.plot_path) {
-        const defaultPath = 'plot.png';
-        const res = await window.electron.downloadResultsImage(
-          firstFile.plot_path,
-          defaultPath
-        );
-        if (res.success) {
-          alert('Image saved!');
-        } else {
-          alert('Failed to save image: ' + (res.error || 'Unknown error'));
-        }
-      }
-    } else if (processingResult.plot_path) {
-      // Handle single file results (backward compatibility)
-      const defaultPath = 'plot.png';
-      const res = await window.electron.downloadResultsImage(
-        processingResult.plot_path,
-        defaultPath
-      );
-      if (res.success) {
-        alert('Image saved!');
+        setTimeout(() => {
+          URL.revokeObjectURL(blobUrl);
+        }, 1000);
       } else {
-        alert('Failed to save image: ' + (res.error || 'Unknown error'));
+        console.error('No data URL received for plot');
       }
+    } catch (error) {
+      console.error('Error opening plot:', error);
     }
   };
 
@@ -209,7 +164,7 @@ function Results() {
               </thead>
               <tbody>
                 {/* Plot row at the top */}
-                <tr className="bg-blue-50">
+                <tr>
                   <td className="border px-3 py-2 font-semibold text-left">
                     Voiced Detection Plot
                   </td>
@@ -220,41 +175,9 @@ function Results() {
                     >
                       {file.plot_path ? (
                         <button
-                          onClick={async () => {
-                            try {
-                              const dataUrl =
-                                await window.electron.getImageDataUrl(
-                                  file.plot_path
-                                );
-                              if (dataUrl) {
-                                // Convert data URL to blob URL to avoid navigation issues
-                                const response = await fetch(dataUrl);
-                                const blob = await response.blob();
-                                const blobUrl = URL.createObjectURL(blob);
-
-                                // Open image in new tab with proper title
-                                const newWindow = window.open(
-                                  blobUrl,
-                                  '_blank'
-                                );
-                                if (newWindow) {
-                                  // Set the title for the new window
-                                  setTimeout(() => {
-                                    newWindow.document.title = `${file.filename} - Voiced Detection Plot`;
-                                  }, 100);
-                                }
-
-                                // Clean up blob URL after a delay
-                                setTimeout(() => {
-                                  URL.revokeObjectURL(blobUrl);
-                                }, 1000);
-                              } else {
-                                console.error('No data URL received for plot');
-                              }
-                            } catch (error) {
-                              console.error('Error opening plot:', error);
-                            }
-                          }}
+                          onClick={() =>
+                            openPlotInNewTab(file.plot_path, file.filename)
+                          }
                           className="flex items-center justify-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors mx-auto"
                           title={`Open plot for ${file.filename}`}
                         >
@@ -297,6 +220,99 @@ function Results() {
                     ))}
                   </tr>
                 ))}
+
+                {/* Download CSV row */}
+                <tr>
+                  <td className="border px-3 py-2 font-semibold text-left">
+                    Download CSV
+                  </td>
+                  {currentFiles.map((file, fileIndex) => (
+                    <td
+                      key={fileIndex}
+                      className="border px-3 py-2 text-center"
+                    >
+                      <button
+                        onClick={async () => {
+                          try {
+                            const csvContent = featuresToCSV([file.features]);
+                            const defaultPath = `${file.filename.replace(
+                              /\.[^/.]+$/,
+                              ''
+                            )}_features.csv`;
+                            const res =
+                              await window.electron.downloadResultsCSV(
+                                csvContent,
+                                defaultPath
+                              );
+                            if (res.success) {
+                              alert('CSV saved!');
+                            } else {
+                              alert(
+                                'Failed to save CSV: ' +
+                                  (res.error || 'Unknown error')
+                              );
+                            }
+                          } catch (error) {
+                            console.error('Error downloading CSV:', error);
+                            alert('Failed to download CSV');
+                          }
+                        }}
+                        className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors cursor-pointer text-xs font-medium"
+                        title={`Download CSV for ${file.filename}`}
+                      >
+                        📥 CSV
+                      </button>
+                    </td>
+                  ))}
+                </tr>
+
+                {/* Download Plot row */}
+                <tr>
+                  <td className="border px-3 py-2 font-semibold text-left">
+                    Download Plot
+                  </td>
+                  {currentFiles.map((file, fileIndex) => (
+                    <td
+                      key={fileIndex}
+                      className="border px-3 py-2 text-center"
+                    >
+                      {file.plot_path ? (
+                        <button
+                          onClick={async () => {
+                            try {
+                              const defaultPath = `${file.filename.replace(
+                                /\.[^/.]+$/,
+                                ''
+                              )}_plot.png`;
+                              const res =
+                                await window.electron.downloadResultsImage(
+                                  file.plot_path,
+                                  defaultPath
+                                );
+                              if (res.success) {
+                                alert('Plot image saved!');
+                              } else {
+                                alert(
+                                  'Failed to save plot: ' +
+                                    (res.error || 'Unknown error')
+                                );
+                              }
+                            } catch (error) {
+                              console.error('Error downloading plot:', error);
+                              alert('Failed to download plot');
+                            }
+                          }}
+                          className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors cursor-pointer text-xs font-medium"
+                          title={`Download plot for ${file.filename}`}
+                        >
+                          📊 Plot
+                        </button>
+                      ) : (
+                        <span className="text-gray-500 text-xs">No plot</span>
+                      )}
+                    </td>
+                  ))}
+                </tr>
               </tbody>
             </table>
           </div>
@@ -430,24 +446,10 @@ function Results() {
       <div className="flex justify-center space-x-4">
         <button
           onClick={() => navigate(-1)}
-          className="bg-gray-600 text-white px-6 py-2 rounded-xl hover:bg-gray-700 transition cursor-pointer"
+          className="bg-green-600 text-white px-6 py-2 rounded-xl hover:bg-gray-700 transition cursor-pointer"
         >
-          Go Back
+          Process More Files
         </button>
-        <div className="flex justify-center space-x-4">
-          <button
-            className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition cursor-pointer"
-            onClick={handleDownloadCSV}
-          >
-            Download CSV
-          </button>
-          <button
-            className="bg-green-600 text-white px-6 py-2 rounded-xl hover:bg-green-700 transition cursor-pointer"
-            onClick={handleDownloadImage}
-          >
-            Download Plot Image
-          </button>
-        </div>
       </div>
     </div>
   );
