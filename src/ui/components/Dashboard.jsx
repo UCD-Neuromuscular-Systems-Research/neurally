@@ -109,9 +109,37 @@ function Dashboard() {
       }}
     >
       <div className="w-full max-w-4xl mx-auto bg-white rounded-xl shadow p-8 space-y-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
-          Sustained Vowel Test
-        </h2>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => navigate('/')}
+            className="text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-colors p-2 cursor-pointer rounded-md"
+            title="Back to Home"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7 7-7"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 12H5"
+              />
+            </svg>
+          </button>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Sustained Vowel Test
+          </h2>
+          <div className="w-6 h-6"></div>
+        </div>
         {/* Description */}
         <div className="bg-gray-50 p-4 rounded-md shadow-sm border border-gray-200 mb-6">
           <p className="text-gray-600">
