@@ -189,16 +189,16 @@ function Dashboard() {
             setIsModalOpen(false);
             setSelectedFeature(null);
           }}
-          title={selectedFeature.title}
+          title={
+            selectedFeature.units === 'dimensionless'
+              ? selectedFeature.title
+              : `${selectedFeature.title} (${selectedFeature.units})`
+          }
         >
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold text-gray-800 mb-2">Description</h3>
               <p className="text-gray-600">{selectedFeature.description}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-2">Units</h3>
-              <p className="text-gray-600">{selectedFeature.units}</p>
             </div>
           </div>
         </Modal>
