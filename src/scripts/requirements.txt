@@ -2,6 +2,7 @@
 numpy
 scipy
 librosa
+resampy
 matplotlib
 scikit-image
 pandas
