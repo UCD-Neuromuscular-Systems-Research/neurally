@@ -1,31 +1,15 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
+import Modal from './Modal.jsx';
+import { SV_FEATURES_DATA, SV_FEATURE_LIST } from '../data/featuresData.js';
 
 function Dashboard() {
   const { testType } = useParams();
   const navigate = useNavigate();
   const [filePaths, setFilePaths] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const SVFeatureList = [
-    'Max Phonation Time (s)',
-    'GNE',
-    'SD MFCC',
-    'SD Delta',
-    'SD Delta2',
-    'Median Pitch',
-    'Std Pitch',
-    'HNR',
-    'Jitter Local Percentage',
-    'Jitter RAP',
-    'Jitter PPQ5',
-    'Jitter DDP',
-    'Shimmer Local dB',
-    'Shimmer APQ3',
-    'Shimmer APQ5',
-    'Shimmer APQ11',
-    'Shimmer DDA',
-  ];
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState(null);
 
   const handleFileUpload = async () => {
     try {
@@ -122,23 +106,21 @@ function Dashboard() {
             ✅ You'll get these features for this test:
           </p>
           <ol className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 list-decimal list-inside mt-4">
-            {SVFeatureList.map((feature, index) => (
-              <li key={index}>{feature}</li>
+            {SV_FEATURE_LIST.map((feature, index) => (
+              <li
+                key={index}
+                onClick={() => {
+                  setSelectedFeature(SV_FEATURES_DATA[feature]);
+                  setIsModalOpen(true);
+                }}
+                className="cursor-pointer hover:text-gray-800 hover:bg-gray-100 px-2 py-1 rounded transition-colors duration-150"
+              >
+                {feature}
+              </li>
             ))}
           </ol>
         </div>
 
-        {/* Features in 3 columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-          {[].map((feature, idx) => (
-            <div
-              key={feature}
-              className="bg-gray-100 rounded-lg p-4 flex items-center justify-center text-center font-semibold text-gray-800 text-base"
-            >
-              {idx + 1}. {feature}
-            </div>
-          ))}
-        </div>
         {/* Call to Action Buttons */}
         <div className="flex flex-col items-center space-y-4">
           <button
@@ -199,6 +181,28 @@ function Dashboard() {
           </button>
         </div>
       </div>
+
+      {isModalOpen && selectedFeature && (
+        <Modal
+          open={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedFeature(null);
+          }}
+          title={selectedFeature.title}
+        >
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-2">Description</h3>
+              <p className="text-gray-600">{selectedFeature.description}</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-2">Units</h3>
+              <p className="text-gray-600">{selectedFeature.units}</p>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
