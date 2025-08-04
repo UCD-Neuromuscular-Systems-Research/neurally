@@ -9,7 +9,7 @@ export const SV_FEATURES_DATA = {
     title: 'GNE',
     description:
       'Glottal-to-Noise Excitation ratio - measures the ratio of periodic to aperiodic energy in the voice. This is a key indicator of voice quality and vocal fold function.',
-    units: 'ratio (dimensionless)',
+    units: 'dimensionless',
   },
   'SD MFCC': {
     title: 'SD MFCC',
