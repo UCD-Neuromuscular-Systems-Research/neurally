@@ -125,8 +125,13 @@ function Dashboard() {
         {/* Call to Action Buttons */}
         <div className="flex flex-col items-center space-y-4">
           <button
+            disabled={isProcessing}
             onClick={handleFileUpload}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className={`px-6 py-3 rounded-lg transition-colors ${
+              isProcessing
+                ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer'
+            }`}
           >
             Select Audio Files
           </button>
