@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { getFeatureNameWithUnits } from '../utils/getFeatureNameWithUnits.js';
+import Pagination from './Pagination.jsx';
+import { FILES_PER_PAGE, METADATA_FIELDS } from '../config/constants.js';
 
 function Results() {
   const location = useLocation();
@@ -10,6 +12,7 @@ function Results() {
   const [filePaths, setFilePaths] = useState([]);
   const [plotDataUrl, setPlotDataUrl] = useState(null);
   const [plotLoading, setPlotLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     // Handle multiple plots or single plot
@@ -157,11 +160,18 @@ function Results() {
       if (files.length === 0)
         return <p className="text-gray-500">No features available</p>;
 
+      // Pagination logic for 10+ files
+      const totalPages = Math.ceil(files.length / FILES_PER_PAGE);
+      const startIndex = (currentPage - 1) * FILES_PER_PAGE;
+      const endIndex = startIndex + FILES_PER_PAGE;
+      const currentFiles = files.slice(startIndex, endIndex);
+      const showPagination = files.length > FILES_PER_PAGE;
+
       // Get all unique feature names (excluding metadata fields)
       const allFeatureNames = new Set();
       files.forEach((file) => {
         Object.keys(file.features).forEach((key) => {
-          if (!['filename', 'participant', 'test'].includes(key)) {
+          if (!METADATA_FIELDS.includes(key)) {
             allFeatureNames.add(key);
           }
         });
@@ -171,112 +181,133 @@ function Results() {
 
       return (
         <div className="overflow-x-auto">
-          <table className="table-auto w-full border-collapse border border-gray-300 text-sm">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="border px-3 py-2 font-semibold text-left">
-                  Feature
-                </th>
-                {files.map((file, index) => (
-                  <th
-                    key={index}
-                    className="border px-3 py-2 font-semibold text-center"
-                  >
-                    File {index + 1}
-                    <div className="text-xs text-gray-500 font-normal">
-                      {file.filename}
-                    </div>
+          <div className="flex justify-center">
+            <table
+              className="table-auto border-collapse border border-gray-300 text-sm"
+              style={{
+                minWidth: currentFiles.length <= 2 ? '600px' : 'none',
+                maxWidth: currentFiles.length <= 5 ? '1200px' : 'none',
+              }}
+            >
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border px-3 py-2 font-semibold text-left">
+                    Feature
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {/* Plot row at the top */}
-              <tr className="bg-blue-50">
-                <td className="border px-3 py-2 font-semibold text-left">
-                  Voiced Detection Plot
-                </td>
-                {files.map((file, fileIndex) => (
-                  <td key={fileIndex} className="border px-3 py-2 text-center">
-                    {file.plot_path ? (
-                      <button
-                        onClick={async () => {
-                          try {
-                            const dataUrl =
-                              await window.electron.getImageDataUrl(
-                                file.plot_path
-                              );
-                            if (dataUrl) {
-                              // Convert data URL to blob URL to avoid navigation issues
-                              const response = await fetch(dataUrl);
-                              const blob = await response.blob();
-                              const blobUrl = URL.createObjectURL(blob);
-
-                              // Open image in new tab with proper title
-                              const newWindow = window.open(blobUrl, '_blank');
-                              if (newWindow) {
-                                // Set the title for the new window
-                                setTimeout(() => {
-                                  newWindow.document.title = `${file.filename} - Voiced Detection Plot`;
-                                }, 100);
-                              }
-
-                              // Clean up blob URL after a delay
-                              setTimeout(() => {
-                                URL.revokeObjectURL(blobUrl);
-                              }, 1000);
-                            } else {
-                              console.error('No data URL received for plot');
-                            }
-                          } catch (error) {
-                            console.error('Error opening plot:', error);
-                          }
-                        }}
-                        className="flex items-center justify-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors mx-auto"
-                        title={`Open plot for ${file.filename}`}
-                      >
-                        <span className="text-sm">View Plot</span>
-                        <svg
-                          className="w-3 h-3"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </button>
-                    ) : (
-                      <span className="text-gray-500 text-sm">No plot</span>
-                    )}
-                  </td>
-                ))}
-              </tr>
-              {/* Feature rows */}
-              {featureNames.map((featureName) => (
-                <tr key={featureName}>
+                  {currentFiles.map((file, index) => (
+                    <th
+                      key={index}
+                      className="border px-3 py-2 font-semibold text-center"
+                    >
+                      File {startIndex + index + 1}
+                      <div className="text-xs text-gray-500 font-normal">
+                        {file.filename}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {/* Plot row at the top */}
+                <tr className="bg-blue-50">
                   <td className="border px-3 py-2 font-semibold text-left">
-                    {getFeatureNameWithUnits(featureName)}
+                    Voiced Detection Plot
                   </td>
-                  {files.map((file, fileIndex) => (
+                  {currentFiles.map((file, fileIndex) => (
                     <td
                       key={fileIndex}
                       className="border px-3 py-2 text-center"
                     >
-                      {console.log(file.features)}
-                      {file.features[featureName] !== undefined
-                        ? roundValue(file.features[featureName])
-                        : 'N/A'}
+                      {file.plot_path ? (
+                        <button
+                          onClick={async () => {
+                            try {
+                              const dataUrl =
+                                await window.electron.getImageDataUrl(
+                                  file.plot_path
+                                );
+                              if (dataUrl) {
+                                // Convert data URL to blob URL to avoid navigation issues
+                                const response = await fetch(dataUrl);
+                                const blob = await response.blob();
+                                const blobUrl = URL.createObjectURL(blob);
+
+                                // Open image in new tab with proper title
+                                const newWindow = window.open(
+                                  blobUrl,
+                                  '_blank'
+                                );
+                                if (newWindow) {
+                                  // Set the title for the new window
+                                  setTimeout(() => {
+                                    newWindow.document.title = `${file.filename} - Voiced Detection Plot`;
+                                  }, 100);
+                                }
+
+                                // Clean up blob URL after a delay
+                                setTimeout(() => {
+                                  URL.revokeObjectURL(blobUrl);
+                                }, 1000);
+                              } else {
+                                console.error('No data URL received for plot');
+                              }
+                            } catch (error) {
+                              console.error('Error opening plot:', error);
+                            }
+                          }}
+                          className="flex items-center justify-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors mx-auto"
+                          title={`Open plot for ${file.filename}`}
+                        >
+                          <span className="text-sm">View Plot</span>
+                          <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                        </button>
+                      ) : (
+                        <span className="text-gray-500 text-sm">No plot</span>
+                      )}
                     </td>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+                {/* Feature rows */}
+                {featureNames.map((featureName) => (
+                  <tr key={featureName}>
+                    <td className="border px-3 py-2 font-semibold text-left">
+                      {getFeatureNameWithUnits(featureName)}
+                    </td>
+                    {currentFiles.map((file, fileIndex) => (
+                      <td
+                        key={fileIndex}
+                        className="border px-3 py-2 text-center"
+                      >
+                        {file.features[featureName] !== undefined
+                          ? roundValue(file.features[featureName])
+                          : 'N/A'}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination Controls */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            showPagination={showPagination}
+          />
         </div>
       );
     }
@@ -290,8 +321,7 @@ function Results() {
         <table className="table-auto w-full border-collapse border border-gray-300 text-sm">
           <tbody>
             {featureEntries.map(([featureName, value]) => {
-              if (['filename', 'participant', 'test'].includes(featureName))
-                return null;
+              if (METADATA_FIELDS.includes(featureName)) return null;
               return (
                 <tr key={featureName} className="text-center">
                   <td className="border px-3 py-2 font-semibold">
