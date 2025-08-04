@@ -1,9 +1,9 @@
 export const SV_FEATURES_DATA = {
-  'Max Phonation Time (s)': {
-    title: 'Max Phonation Time (s)',
+  'Max Phonation Time': {
+    title: 'Max Phonation Time',
     description:
       'Duration of sustained vowel production at a consistent pitch and loudness. This measures how long a person can hold a vowel sound, indicating vocal endurance and respiratory support.',
-    units: 'seconds',
+    units: 's',
   },
   GNE: {
     title: 'GNE',
@@ -51,25 +51,25 @@ export const SV_FEATURES_DATA = {
     title: 'Jitter Local Percentage',
     description:
       'Local jitter percentage - measures cycle-to-cycle variation in fundamental frequency. This indicates vocal fold vibration regularity and stability.',
-    units: 'percentage',
+    units: '%',
   },
   'Jitter RAP': {
     title: 'Jitter RAP',
     description:
       'Relative Average Perturbation - average absolute difference between consecutive periods. This measures fundamental frequency stability over time.',
-    units: 'percentage',
+    units: '%',
   },
   'Jitter PPQ5': {
     title: 'Jitter PPQ5',
     description:
       'Pitch Perturbation Quotient - measures jitter using 5-point smoothing. This is a more robust measure of pitch stability that reduces noise effects.',
-    units: 'percentage',
+    units: '%',
   },
   'Jitter DDP': {
     title: 'Jitter DDP',
     description:
       'Difference of Differences of Periods - measures jitter using period-to-period differences. This is an advanced measure of vocal fold vibration regularity.',
-    units: 'percentage',
+    units: '%',
   },
   'Shimmer Local dB': {
     title: 'Shimmer Local dB',
@@ -81,30 +81,30 @@ export const SV_FEATURES_DATA = {
     title: 'Shimmer APQ3',
     description:
       'Amplitude Perturbation Quotient - measures shimmer using 3-point smoothing. This is a robust measure of amplitude stability that reduces noise effects.',
-    units: 'percentage',
+    units: '%',
   },
   'Shimmer APQ5': {
     title: 'Shimmer APQ5',
     description:
       'Amplitude Perturbation Quotient - measures shimmer using 5-point smoothing. This is a more robust measure of amplitude stability with increased smoothing.',
-    units: 'percentage',
+    units: '%',
   },
   'Shimmer APQ11': {
     title: 'Shimmer APQ11',
     description:
       'Amplitude Perturbation Quotient - measures shimmer using 11-point smoothing. This is the most robust measure of amplitude stability with maximum smoothing.',
-    units: 'percentage',
+    units: '%',
   },
   'Shimmer DDA': {
     title: 'Shimmer DDA',
     description:
       'Difference of Differences of Amplitudes - measures shimmer using amplitude differences. This is an advanced measure of amplitude stability using period-to-period differences.',
-    units: 'percentage',
+    units: '%',
   },
 };
 
 export const SV_FEATURE_LIST = [
-  'Max Phonation Time (s)',
+  'Max Phonation Time',
   'GNE',
   'SD MFCC',
   'SD Delta',
