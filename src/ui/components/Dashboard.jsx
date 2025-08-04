@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import Modal from '../layout/Modal.jsx';
 import { SV_FEATURES_DATA, SV_FEATURE_LIST } from '../config/featuresData.js';
@@ -11,6 +11,15 @@ function Dashboard() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState(null);
+
+  // Cleanup any leftover state when component mounts
+  useEffect(() => {
+    // Reset any potential leftover state
+    setIsModalOpen(false);
+    setSelectedFeature(null);
+    setIsProcessing(false);
+    setFilePaths([]);
+  }, []);
 
   const handleFileUpload = async () => {
     try {
@@ -87,7 +96,18 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center bg-gray-50"
+      onClick={() => {
+        // Clear any potential leftover tooltips or overlays
+        const tooltips = document.querySelectorAll('[title]');
+        tooltips.forEach((tooltip) => {
+          if (tooltip.title.includes('Download plot for')) {
+            tooltip.removeAttribute('title');
+          }
+        });
+      }}
+    >
       <div className="w-full max-w-4xl mx-auto bg-white rounded-xl shadow p-8 space-y-8">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
           Sustained Vowel Test
