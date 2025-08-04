@@ -115,7 +115,7 @@ function Dashboard() {
                 }}
                 className="cursor-pointer hover:text-gray-800 hover:bg-gray-100 px-2 py-1 rounded transition-colors duration-150"
               >
-                {feature}
+                {SV_FEATURES_DATA[feature].title}
               </li>
             ))}
           </ol>
