@@ -157,9 +157,60 @@ def process_audio_files(file_paths, test_type):
         return {"error": f"Error processing files: {str(e)}"}
 
 def process_sr_files(file_paths, output_dir):
-    """Process Syllable Repetition files (single or multiple)"""
-    # TODO: Implement similar to process_sv_files but with "SR"
-    pass
+    """Process Syllable Repetition files (single or multiple) using existing HD capabilities"""
+
+    speechTestType = "SR"
+
+    try:
+        temp_dir = setup_temp_directory(file_paths, speechTestType, output_dir)
+
+        dataPath = str(temp_dir)
+        group = "Multiple" if len(file_paths) > 1 else "Single"
+        figPath = str(output_dir)
+
+        filenames, files = audio_processing.load_audio_files(dataPath, speechTestType)
+        audio_processing.process_voiced_detection(files, filenames, speechTestType, str(output_dir), group, figPath)
+        df = audio_processing.process_feature_estimation(dataPath, str(output_dir), group, speechTestType)
+
+        shutil.rmtree(temp_dir)
+
+        # Get all plot files and match them to original files
+        plot_files = list(output_dir.glob("*.png"))
+        
+        results = {
+            "status": "success",
+            "test_type": "SR",
+            "total_files": len(file_paths),
+            "files": []
+        }
+
+        for i, file_path in enumerate(file_paths):
+            original_filename = Path(file_path).stem  # filename without extension
+            file_result = {
+                "filename": Path(file_path).name,
+                "original_path": str(file_path),
+                "status": "success"
+            }
+            
+            if i < len(df):
+                file_result["features"] = df.iloc[i].to_dict()
+            
+            # Find the plot file that matches this original filename
+            matching_plot = None
+            for plot_file in plot_files:
+                if original_filename in plot_file.stem:
+                    matching_plot = plot_file
+                    break
+            
+            if matching_plot:
+                file_result["plot_path"] = str(matching_plot.absolute())
+            
+            results["files"].append(file_result)
+
+        return results
+
+    except Exception as e:
+        return {"error": f"SR processing failed: {str(e)}"}
 
 def process_pr_files(file_paths, output_dir):
     """Process Paragraph Reading files (single or multiple)"""
