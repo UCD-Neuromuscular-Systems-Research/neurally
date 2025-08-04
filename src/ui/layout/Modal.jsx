@@ -1,5 +1,5 @@
 import React from 'react';
-import CloseIcon from './CloseIcon.jsx';
+import CloseIcon from '../utils/CloseIcon.jsx';
 
 function Modal({ open, onClose, title, children }) {
   if (!open) return null;

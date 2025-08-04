@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import Modal from './Modal.jsx';
-import { SV_FEATURES_DATA, SV_FEATURE_LIST } from '../data/featuresData.js';
+import Modal from '../layout/Modal.jsx';
+import { SV_FEATURES_DATA, SV_FEATURE_LIST } from '../config/featuresData.js';
 
 function Dashboard() {
   const { testType } = useParams();
