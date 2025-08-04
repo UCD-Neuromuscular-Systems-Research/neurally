@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router';
+import { getFeatureNameWithUnits } from '../utils/getFeatureNameWithUnits.js';
 
 function Results() {
   const location = useLocation();
@@ -259,13 +260,14 @@ function Results() {
               {featureNames.map((featureName) => (
                 <tr key={featureName}>
                   <td className="border px-3 py-2 font-semibold text-left">
-                    {featureName.replace(/_/g, ' ')}
+                    {getFeatureNameWithUnits(featureName)}
                   </td>
                   {files.map((file, fileIndex) => (
                     <td
                       key={fileIndex}
                       className="border px-3 py-2 text-center"
                     >
+                      {console.log(file.features)}
                       {file.features[featureName] !== undefined
                         ? roundValue(file.features[featureName])
                         : 'N/A'}
@@ -287,13 +289,13 @@ function Results() {
       return (
         <table className="table-auto w-full border-collapse border border-gray-300 text-sm">
           <tbody>
-            {featureEntries.map(([key, value]) => {
-              if (['filename', 'participant', 'test'].includes(key))
+            {featureEntries.map(([featureName, value]) => {
+              if (['filename', 'participant', 'test'].includes(featureName))
                 return null;
               return (
-                <tr key={key} className="text-center">
+                <tr key={featureName} className="text-center">
                   <td className="border px-3 py-2 font-semibold">
-                    {key.replace(/_/g, ' ')}
+                    {getFeatureNameWithUnits(featureName)}
                   </td>
                   <td className="border px-3 py-2">{roundValue(value)}</td>
                 </tr>

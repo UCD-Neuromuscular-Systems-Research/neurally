@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import Modal from '../layout/Modal.jsx';
 import { SV_FEATURES_DATA, SV_FEATURE_LIST } from '../config/featuresData.js';
+import { getFeatureTitleWithUnits } from '../utils/getFeatureNameWithUnits.js';
 
 function Dashboard() {
   const { testType } = useParams();
@@ -189,11 +190,7 @@ function Dashboard() {
             setIsModalOpen(false);
             setSelectedFeature(null);
           }}
-          title={
-            selectedFeature.units === 'dimensionless'
-              ? selectedFeature.title
-              : `${selectedFeature.title} (${selectedFeature.units})`
-          }
+          title={getFeatureTitleWithUnits(selectedFeature)}
         >
           <div className="space-y-4">
             <div>
