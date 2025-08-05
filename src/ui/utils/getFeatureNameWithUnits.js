@@ -1,7 +1,8 @@
-import { SV_FEATURES_DATA } from '../config/featuresData.js';
+import { SV_FEATURES_DATA, SR_FEATURES_DATA } from '../config/featuresData.js';
 
-export const getFeatureNameWithUnits = (featureName) => {
-  const featureData = SV_FEATURES_DATA[featureName];
+export const getFeatureNameWithUnits = (featureName, testType = 'SV') => {
+  const featuresData = testType === 'SR' ? SR_FEATURES_DATA : SV_FEATURES_DATA;
+  const featureData = featuresData[featureName];
 
   if (
     featureData &&

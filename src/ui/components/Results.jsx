@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { getFeatureNameWithUnits } from '../utils/getFeatureNameWithUnits.js';
+import { SV_FEATURES_DATA, SR_FEATURES_DATA } from '../config/featuresData.js';
 import Pagination from './Pagination.jsx';
 import { FILES_PER_PAGE, METADATA_FIELDS } from '../config/constants.js';
 
@@ -10,6 +11,7 @@ function Results() {
   const [processingResult, setProcessingResult] = useState(null);
   const [error, setError] = useState(null);
   const [filePaths, setFilePaths] = useState([]);
+  const [testType, setTestType] = useState('SV');
   const [plotDataUrl, setPlotDataUrl] = useState(null);
   const [plotLoading, setPlotLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,6 +52,7 @@ function Results() {
       setProcessingResult(location.state.processingResult);
       setError(location.state.error);
       setFilePaths(location.state.filePaths || []);
+      setTestType(location.state.testType || 'SV');
 
       // If there's raw result data, try to parse it
       if (location.state.rawResult) {
@@ -66,7 +69,12 @@ function Results() {
   function featuresToCSV(features) {
     if (!features || features.length === 0) return '';
     const keys = Object.keys(features[0]);
-    const header = keys.join(',');
+
+    const displayNames = keys.map((key) =>
+      getFeatureNameWithUnits(key, testType)
+    );
+
+    const header = displayNames.join(',');
     const rows = features.map((f) => keys.map((k) => f[k]).join(','));
     return [header, ...rows].join('\n');
   }
@@ -206,7 +214,7 @@ function Results() {
                 {featureNames.map((featureName) => (
                   <tr key={featureName}>
                     <td className="border px-3 py-2 font-semibold text-left">
-                      {getFeatureNameWithUnits(featureName)}
+                      {getFeatureNameWithUnits(featureName, testType)}
                     </td>
                     {currentFiles.map((file, fileIndex) => (
                       <td
@@ -349,7 +357,7 @@ function Results() {
               return (
                 <tr key={featureName} className="text-center">
                   <td className="border px-3 py-2 font-semibold">
-                    {getFeatureNameWithUnits(featureName)}
+                    {getFeatureNameWithUnits(featureName, testType)}
                   </td>
                   <td className="border px-3 py-2">{roundValue(value)}</td>
                 </tr>

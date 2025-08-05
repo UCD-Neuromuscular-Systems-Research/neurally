@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import Modal from '../layout/Modal.jsx';
-import { SV_FEATURES_DATA, SV_FEATURE_LIST } from '../config/featuresData.js';
+import {
+  SV_FEATURES_DATA,
+  SV_FEATURE_LIST,
+  SR_FEATURES_DATA,
+  SR_FEATURE_LIST,
+} from '../config/featuresData.js';
 import { getFeatureTitleWithUnits } from '../utils/getFeatureNameWithUnits.js';
 
 function Dashboard() {
@@ -11,6 +16,36 @@ function Dashboard() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState(null);
+
+  const getTestData = () => {
+    switch (testType) {
+      case 'SV':
+        return {
+          title: 'Sustained Vowel Test',
+          description:
+            'The act of holding a vowel sound (like "ah" or "ee") for an extended period, usually at a consistent pitch and loudness. This technique is often used in clinical settings and research to assess voice quality and identify potential vocal issues.',
+          featuresData: SV_FEATURES_DATA,
+          featureList: SV_FEATURE_LIST,
+        };
+      case 'SR':
+        return {
+          title: 'Syllable Repetition Test',
+          description:
+            'The act of rapidly repeating syllables (like "pa-ta-ka") in a consistent rhythm. This technique is used to assess motor speech planning, coordination, and timing abilities.',
+          featuresData: SR_FEATURES_DATA,
+          featureList: SR_FEATURE_LIST,
+        };
+      default:
+        return {
+          title: 'Speech Test',
+          description: 'Speech analysis test for voice and speech assessment.',
+          featuresData: {},
+          featureList: [],
+        };
+    }
+  };
+
+  const testData = getTestData();
 
   // Cleanup any leftover state when component mounts
   useEffect(() => {
@@ -135,19 +170,14 @@ function Dashboard() {
               />
             </svg>
           </button>
-          <h2 className="text-2xl font-bold text-gray-800">
-            Sustained Vowel Test
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800">{testData.title}</h2>
           <div className="w-6 h-6"></div>
         </div>
         {/* Description */}
         <div className="bg-gray-50 p-4 rounded-md shadow-sm border border-gray-200 mb-6">
           <p className="text-gray-600">
-            <span className="font-bold">Description:</span> The act of holding a
-            vowel sound (like "ah" or "ee") for an extended period, usually at a
-            consistent pitch and loudness. This technique is often used in
-            clinical settings and research to assess voice quality and identify
-            potential vocal issues.
+            <span className="font-bold">Description:</span>{' '}
+            {testData.description}
           </p>
         </div>
         <div className="bg-gray-50 p-4 rounded-md shadow-sm border border-gray-200 mb-6">
@@ -155,16 +185,16 @@ function Dashboard() {
             ✅ You'll get these features for this test:
           </p>
           <ol className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 list-decimal list-inside mt-4">
-            {SV_FEATURE_LIST.map((feature, index) => (
+            {testData.featureList.map((feature, index) => (
               <li
                 key={index}
                 onClick={() => {
-                  setSelectedFeature(SV_FEATURES_DATA[feature]);
+                  setSelectedFeature(testData.featuresData[feature]);
                   setIsModalOpen(true);
                 }}
                 className="cursor-pointer hover:text-gray-800 hover:bg-gray-100 px-2 py-1 rounded transition-colors duration-150"
               >
-                {SV_FEATURES_DATA[feature].title}
+                {testData.featuresData[feature].title}
               </li>
             ))}
           </ol>

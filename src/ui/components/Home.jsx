@@ -17,7 +17,7 @@ function Home() {
           <Link to="tests/SV">Sustained Vowel (SV)</Link>
         </button>
         <button className="bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-700 transition cursor-pointer">
-          Syllable Repetition (SR)
+          <Link to="tests/SR">Syllable Repetition (SR)</Link>
         </button>
         <button className="bg-purple-500 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition cursor-pointer">
           Paragraph reading (PR)
