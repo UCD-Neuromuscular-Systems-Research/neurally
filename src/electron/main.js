@@ -17,19 +17,31 @@ const getBasePath = () =>
     ? app.getAppPath()
     : process.resourcesPath;
 
-const getPythonExecutable = () => {
+const getExecutablePath = () => {
   const base = getBasePath();
-  const pythonPath = PYTHON_PATHS[process.platform] || PYTHON_PATHS.default;
 
-  return path.join(base, pythonPath);
+  if (process.platform === 'win32') {
+    // Use compiled executable on Windows
+    return path.join(base, 'dist-python', 'neurally-python.exe');
+  } else {
+    // Use Python script on other platforms
+    const pythonPath = PYTHON_PATHS[process.platform] || PYTHON_PATHS.default;
+    return path.join(base, pythonPath);
+  }
 };
 
 const getMainScriptPath = () => {
   const base = getBasePath();
-  return path.join(base, 'src', 'scripts', 'main.py');
+
+  if (process.platform === 'win32') {
+    // No script path needed for Windows executable
+    return null;
+  } else {
+    return path.join(base, 'src', 'scripts', 'main.py');
+  }
 };
 
-const createPythonProcess = (pythonExe, scriptPath, args, env = {}) => {
+const createPythonProcess = (executable, scriptPath, args, env = {}) => {
   return new Promise((resolve, reject) => {
     const processEnv = { ...process.env, ...env };
 
@@ -37,7 +49,10 @@ const createPythonProcess = (pythonExe, scriptPath, args, env = {}) => {
       processEnv.NEURALLY_NO_LOG = '1';
     }
 
-    const child = spawn(pythonExe, [scriptPath, ...args], { env: processEnv });
+    // For Windows executable, don't pass scriptPath
+    const spawnArgs = scriptPath ? [scriptPath, ...args] : args;
+    const child = spawn(executable, spawnArgs, { env: processEnv });
+
     let output = '';
     let error = '';
 
@@ -60,14 +75,14 @@ const createPythonProcess = (pythonExe, scriptPath, args, env = {}) => {
 };
 
 const executeHD = async (testType, filePaths, isMultiple = false) => {
-  const pythonExe = getPythonExecutable();
+  const executable = getExecutablePath();
   const scriptPath = getMainScriptPath();
 
   const args = isMultiple
     ? [testType, '--multiple', filePaths.join('|')]
     : [testType, filePaths];
 
-  return createPythonProcess(pythonExe, scriptPath, args);
+  return createPythonProcess(executable, scriptPath, args);
 };
 
 // TODO: Make this normal size once, the app is properly styled responsively

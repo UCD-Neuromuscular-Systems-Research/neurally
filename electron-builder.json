@@ -3,8 +3,7 @@
   "asar": true,
   "files": ["src/electron", "dist-react"],
   "extraResources": [
-    "src/scripts/venv",
-    "src/scripts/main.py",
+    "dist-python",
     "src/scripts/HD",
     "src/electron/preload.cjs"
   ],
