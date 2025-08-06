@@ -266,7 +266,7 @@ function Dashboard() {
               </p>
               {filePaths.map((filePath, index) => (
                 <p key={index} className="text-sm text-gray-500">
-                  {index + 1}. {filePath.split('/').pop()}
+                  {index + 1}. {filePath.split(/[/\\]/).pop()}
                 </p>
               ))}
             </div>

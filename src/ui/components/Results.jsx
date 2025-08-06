@@ -465,7 +465,7 @@ function Results() {
             <div className="text-sm mt-1">
               Files:{' '}
               {filePaths
-                .map((filePath) => filePath.split('/').pop())
+                .map((filePath) => filePath.split(/[/\\]/).pop())
                 .join(', ')}
             </div>
           )}
