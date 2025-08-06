@@ -603,8 +603,8 @@ class detectionFunctions:
             st_idx = int(st * self.fs) if time_axis is None else np.searchsorted(time_axis, st)
             en_idx = int(en * self.fs) if time_axis is None else np.searchsorted(time_axis, en)
 
-            plt.axvline(x=time_axis[st_idx] if time_axis is not None else st, color='g', linestyle='--')  # Green for Onset
-            plt.axvline(x=time_axis[en_idx] if time_axis is not None else en, color='r', linestyle='--')  # Red for Offset
+            plt.axvline(x=time_axis[st_idx] if time_axis is not None else st, color='g', linestyle='--', label="Onset" if st == startPeaks[0] else "")  
+            plt.axvline(x=time_axis[en_idx] if time_axis is not None else en, color='r', linestyle='--', label="Offset" if en == endPeaks[0] else "")  
 
         # Threshold Logic:
         if adaptive_threshold is not None:
@@ -625,6 +625,10 @@ class detectionFunctions:
         elif static_threshold is not None:
             # Static threshold line (for SV task)
             plt.axhline(y=static_threshold, color='purple', linestyle='-', label="Threshold")
+    
+        plt.ylabel("Teager-Kaiser Energy")
+        plt.legend()
+        plt.title("TKEO Energy with Threshold Logic")
     
         # Plot sentence boundaries (only on TKEO plot for PR task)
         if sentence_boundaries is not None and len(sentence_boundaries) > 0:
@@ -701,6 +705,7 @@ class detectionFunctions:
                 )
             )
 
+        plt.xlabel("Time (seconds)")        
         plt.savefig(os.path.join(figPath, self.filename + '.png'), bbox_inches='tight', pad_inches=0.05, dpi=300)
         plt.close()
 
