@@ -459,11 +459,14 @@ function Results() {
           {filePaths && filePaths.length > 0 && (
             <div className="text-sm mt-1">
               Files processed: {filePaths.length}
-              {filePaths.map((filePath, index) => (
-                <div key={index} className="text-xs">
-                  {index + 1}. {filePath.split('/').pop()}
-                </div>
-              ))}
+            </div>
+          )}
+          {filePaths && filePaths.length > 0 && (
+            <div className="text-sm mt-1">
+              Files:{' '}
+              {filePaths
+                .map((filePath) => filePath.split('/').pop())
+                .join(', ')}
             </div>
           )}
         </div>
