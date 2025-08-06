@@ -563,7 +563,7 @@ class detectionFunctions:
 
     # PLOT DETECTION METHOD - updated for Sentence Boundaries in Paragraph Reading Task - 18:27 01/04/25
     def plot_detection(self, figPath, dataTKEO, startPeaks, endPeaks, adaptive_threshold = None, dataRMS = None, time_axis = None, meanRMS = None, is_syllable_repetition = True, sentence_boundaries=None, static_threshold = None):
-        plt.figure(figsize=(20, 15)) 
+        plt.figure(figsize=(20, 15), constrained_layout=True) 
         plt.suptitle(self.filename, fontsize=24)
 
         # Plot 1: Speech Signal with Detected Onsets/Offsets
@@ -698,7 +698,6 @@ class detectionFunctions:
                 )
             )
 
-        plt.tight_layout()                                          
         plt.savefig(os.path.join(figPath, self.filename + '.png'))
         plt.close()
 
