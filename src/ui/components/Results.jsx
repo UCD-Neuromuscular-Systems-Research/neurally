@@ -67,7 +67,7 @@ function Results() {
           const parsed = JSON.parse(location.state.rawResult);
           setProcessingResult(parsed);
         } catch (parseError) {
-          setError(`Failed to parse result: ${parseError.message}`);
+          setError('Failed to process results. Please try again.');
         }
       }
     }
@@ -144,10 +144,10 @@ function Results() {
           URL.revokeObjectURL(blobUrl);
         }, 1000);
       } else {
-        console.error('No data URL received for plot');
+        alert('Plot not available. Please try again.');
       }
     } catch (error) {
-      console.error('Error opening plot:', error);
+      alert('Failed to open plot. Please try again.');
     }
   };
 
@@ -299,12 +299,11 @@ function Results() {
                                 !res.error.includes('cancelled') &&
                                 !res.error.includes('canceled')
                               ) {
-                                alert('Failed to save CSV: ' + res.error);
+                                alert('Failed to save CSV. Please try again.');
                               }
                             }
                           } catch (error) {
-                            console.error('Error downloading CSV:', error);
-                            alert('Failed to download CSV');
+                            alert('Failed to download CSV. Please try again.');
                           }
                         }}
                         className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors cursor-pointer text-xs font-medium"
@@ -348,12 +347,15 @@ function Results() {
                                   !res.error.includes('cancelled') &&
                                   !res.error.includes('canceled')
                                 ) {
-                                  alert('Failed to save plot: ' + res.error);
+                                  alert(
+                                    'Failed to save plot. Please try again.'
+                                  );
                                 }
                               }
                             } catch (error) {
-                              console.error('Error downloading plot:', error);
-                              alert('Failed to download plot');
+                              alert(
+                                'Failed to download plot. Please try again.'
+                              );
                             }
                           }}
                           className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors cursor-pointer text-xs font-medium"

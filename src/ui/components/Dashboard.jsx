@@ -83,7 +83,7 @@ function Dashboard() {
         setFilePaths(selectedFilePaths);
       }
     } catch (error) {
-      console.error('Error selecting file:', error);
+      alert('Failed to select files. Please try again.');
     }
   };
 
@@ -122,12 +122,10 @@ function Dashboard() {
             },
           });
         } catch (parseError) {
-          console.error('JSON parse error:', parseError);
-          console.error('Failed to parse:', cleanResult);
           // Navigate to Results with error
           navigate('/results', {
             state: {
-              error: `Failed to parse result: ${parseError.message}`,
+              error: 'Failed to process results. Please try again.',
               rawResult: cleanResult,
               testType: testType,
               filePath: filePaths,
@@ -135,11 +133,10 @@ function Dashboard() {
           });
         }
       } catch (error) {
-        console.error('Processing error:', error);
         // Navigate to Results with error
         navigate('/results', {
           state: {
-            error: error.message,
+            error: 'Processing failed. Please try again.',
             testType: testType,
             filePath: filePaths,
           },
