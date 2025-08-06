@@ -16,6 +16,13 @@ function Results() {
   const [plotLoading, setPlotLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const roundValue = (value) => {
+    if (typeof value === 'number') {
+      return Number(value.toFixed(4));
+    }
+    return value;
+  };
+
   useEffect(() => {
     // Handle multiple plots or single plot
     if (
@@ -59,8 +66,9 @@ function Results() {
         try {
           const parsed = JSON.parse(location.state.rawResult);
           setProcessingResult(parsed);
+          // eslint-disable-next-line no-unused-vars
         } catch (parseError) {
-          setError(`Failed to parse result: ${parseError.message}`);
+          setError('Failed to process results. Please try again.');
         }
       }
     }
@@ -75,7 +83,46 @@ function Results() {
     );
 
     const header = displayNames.join(',');
-    const rows = features.map((f) => keys.map((k) => f[k]).join(','));
+    const rows = features.map((f) =>
+      keys.map((k) => roundValue(f[k])).join(',')
+    );
+    return [header, ...rows].join('\n');
+  }
+
+  function allFeaturesToCSV(processingResult) {
+    if (
+      !processingResult ||
+      !processingResult.files ||
+      processingResult.files.length === 0
+    )
+      return '';
+
+    const files = processingResult.files.filter((file) => file.features);
+    if (files.length === 0) return '';
+
+    const allFeatureNames = new Set();
+    files.forEach((file) => {
+      Object.keys(file.features).forEach((key) => {
+        if (!METADATA_FIELDS.includes(key)) {
+          allFeatureNames.add(key);
+        }
+      });
+    });
+
+    const featureNames = Array.from(allFeatureNames).sort();
+    const displayNames = featureNames.map((key) =>
+      getFeatureNameWithUnits(key, testType)
+    );
+
+    const header = ['Filename', ...displayNames].join(',');
+
+    const rows = files.map((file) => {
+      const values = featureNames.map((key) =>
+        roundValue(file.features[key] || '')
+      );
+      return [file.filename, ...values].join(',');
+    });
+
     return [header, ...rows].join('\n');
   }
 
@@ -98,23 +145,16 @@ function Results() {
           URL.revokeObjectURL(blobUrl);
         }, 1000);
       } else {
-        console.error('No data URL received for plot');
+        alert('Plot not available. Please try again.');
       }
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
-      console.error('Error opening plot:', error);
+      alert('Failed to open plot. Please try again.');
     }
   };
 
   const renderFeaturesTable = (processingResult) => {
     if (!processingResult) return null;
-
-    // Helper function to round values to 4 decimal places
-    const roundValue = (value) => {
-      if (typeof value === 'number') {
-        return Number(value.toFixed(4));
-      }
-      return value;
-    };
 
     // Handle multi-file results
     if (processingResult.files && processingResult.files.length > 0) {
@@ -232,7 +272,7 @@ function Results() {
                 {/* Download CSV row */}
                 <tr>
                   <td className="border px-3 py-2 font-semibold text-left">
-                    Download CSV
+                    Download Features
                   </td>
                   {currentFiles.map((file, fileIndex) => (
                     <td
@@ -261,12 +301,12 @@ function Results() {
                                 !res.error.includes('cancelled') &&
                                 !res.error.includes('canceled')
                               ) {
-                                alert('Failed to save CSV: ' + res.error);
+                                alert('Failed to save CSV. Please try again.');
                               }
                             }
+                            // eslint-disable-next-line no-unused-vars
                           } catch (error) {
-                            console.error('Error downloading CSV:', error);
-                            alert('Failed to download CSV');
+                            alert('Failed to download CSV. Please try again.');
                           }
                         }}
                         className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors cursor-pointer text-xs font-medium"
@@ -310,12 +350,16 @@ function Results() {
                                   !res.error.includes('cancelled') &&
                                   !res.error.includes('canceled')
                                 ) {
-                                  alert('Failed to save plot: ' + res.error);
+                                  alert(
+                                    'Failed to save plot. Please try again.'
+                                  );
                                 }
                               }
+                              // eslint-disable-next-line no-unused-vars
                             } catch (error) {
-                              console.error('Error downloading plot:', error);
-                              alert('Failed to download plot');
+                              alert(
+                                'Failed to download plot. Please try again.'
+                              );
                             }
                           }}
                           className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors cursor-pointer text-xs font-medium"
@@ -415,11 +459,14 @@ function Results() {
           {filePaths && filePaths.length > 0 && (
             <div className="text-sm mt-1">
               Files processed: {filePaths.length}
-              {filePaths.map((filePath, index) => (
-                <div key={index} className="text-xs">
-                  {index + 1}. {filePath.split('/').pop()}
-                </div>
-              ))}
+            </div>
+          )}
+          {filePaths && filePaths.length > 0 && (
+            <div className="text-sm mt-1">
+              Files:{' '}
+              {filePaths
+                .map((filePath) => filePath.split(/[/\\]/).pop())
+                .join(', ')}
             </div>
           )}
         </div>
@@ -466,6 +513,29 @@ function Results() {
         >
           Process More Files
         </button>
+        {processingResult &&
+          processingResult.files &&
+          processingResult.files.length > 1 && (
+            <button
+              onClick={() => {
+                const csvContent = allFeaturesToCSV(processingResult);
+                if (csvContent) {
+                  const blob = new Blob([csvContent], { type: 'text/csv' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `${testType}_all_results.csv`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }
+              }}
+              className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition cursor-pointer"
+            >
+              Download All
+            </button>
+          )}
       </div>
     </div>
   );

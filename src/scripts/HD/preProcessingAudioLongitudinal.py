@@ -9,6 +9,8 @@ from scipy.io import wavfile                                # Audio Processing (
 import os, librosa                                          # Audio Processing
 import matplotlib
 matplotlib.use('Agg')
+import matplotlib
+matplotlib.use('Agg')                                       # To make the plotting work in background
 import matplotlib.pyplot as plt                             # Plot & Visualisation
 from concurrent.futures import ProcessPoolExecutor          # Parallel Processing
 from pathlib import Path                                    # Path Management
@@ -563,8 +565,11 @@ class detectionFunctions:
 
     # PLOT DETECTION METHOD - updated for Sentence Boundaries in Paragraph Reading Task - 18:27 01/04/25
     def plot_detection(self, figPath, dataTKEO, startPeaks, endPeaks, adaptive_threshold = None, dataRMS = None, time_axis = None, meanRMS = None, is_syllable_repetition = True, sentence_boundaries=None, static_threshold = None):
-        plt.figure(figsize=(20, 15)) 
-        plt.suptitle(self.filename, fontsize=24)
+        # Calculate optimal figure size based on content
+        num_plots = 3 if is_syllable_repetition and dataRMS is not None and meanRMS is not None else 2
+        fig_height = 4 * num_plots  # 4 inches per plot
+        plt.figure(figsize=(16, fig_height), constrained_layout=True) 
+        plt.suptitle(self.filename, fontsize=20)
 
         # Plot 1: Speech Signal with Detected Onsets/Offsets
         plt.subplot(3, 1, 1)  # First subplot
@@ -600,8 +605,8 @@ class detectionFunctions:
             st_idx = int(st * self.fs) if time_axis is None else np.searchsorted(time_axis, st)
             en_idx = int(en * self.fs) if time_axis is None else np.searchsorted(time_axis, en)
 
-            plt.axvline(x=time_axis[st_idx] if time_axis is not None else st, color='g', linestyle='--')  # Green for Onset
-            plt.axvline(x=time_axis[en_idx] if time_axis is not None else en, color='r', linestyle='--')  # Red for Offset
+            plt.axvline(x=time_axis[st_idx] if time_axis is not None else st, color='g', linestyle='--', label="Onset" if st == startPeaks[0] else "")  
+            plt.axvline(x=time_axis[en_idx] if time_axis is not None else en, color='r', linestyle='--', label="Offset" if en == endPeaks[0] else "")  
 
         # Threshold Logic:
         if adaptive_threshold is not None:
@@ -622,6 +627,11 @@ class detectionFunctions:
         elif static_threshold is not None:
             # Static threshold line (for SV task)
             plt.axhline(y=static_threshold, color='purple', linestyle='-', label="Threshold")
+    
+        plt.ylabel("Teager-Kaiser Energy")
+        plt.legend()
+        plt.title("TKEO Energy with Threshold Logic")
+        plt.xlabel("Time (seconds)")
     
         # Plot sentence boundaries (only on TKEO plot for PR task)
         if sentence_boundaries is not None and len(sentence_boundaries) > 0:
@@ -706,6 +716,8 @@ class detectionFunctions:
         # Save plot with original filename to help with matching
         plot_filename = self.filename + '.png'
         plt.savefig(os.path.join(figPath, plot_filename), dpi=300, bbox_inches='tight')
+        plt.xlabel("Time (seconds)")        
+        plt.savefig(os.path.join(figPath, self.filename + '.png'), bbox_inches='tight', pad_inches=0.05, dpi=300)
         plt.close()
 
         return None

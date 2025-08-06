@@ -13,21 +13,24 @@ function Home() {
       </p>
 
       <div className="flex flex-col space-y-4 mb-6 w-full max-w-xs">
-        <Link 
-          to="tests/SV" 
+        <Link
+          to="tests/SV"
           className="bg-blue-500 text-white hover:bg-blue-700 px-6 py-2 rounded-xl transition cursor-pointer block text-center"
         >
           Sustained Vowel (SV)
         </Link>
-        <Link 
-          to="tests/SR" 
+        <Link
+          to="tests/SR"
           className="bg-green-500 text-white hover:bg-green-700 px-6 py-2 rounded-xl transition cursor-pointer block text-center"
         >
           Syllable Repetition (SR)
         </Link>
-        <button className="bg-purple-500 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition cursor-pointer w-full">
-          Paragraph reading (PR)
-        </button>
+        <Link
+          to="tests/PR"
+          className="bg-purple-500 text-white hover:bg-purple-700 px-6 py-2 rounded-xl transition cursor-pointer block text-center"
+        >
+          Paragraph Reading (PR)
+        </Link>
       </div>
 
       <button className="flex items-center space-x-1 text-sm text-zinc-500 hover:underline cursor-pointer">

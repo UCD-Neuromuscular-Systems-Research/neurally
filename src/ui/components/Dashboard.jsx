@@ -6,6 +6,8 @@ import {
   SV_FEATURE_LIST,
   SR_FEATURES_DATA,
   SR_FEATURE_LIST,
+  PR_FEATURES_DATA,
+  PR_FEATURE_LIST,
 } from '../config/featuresData.js';
 import { getFeatureTitleWithUnits } from '../utils/getFeatureNameWithUnits.js';
 
@@ -34,6 +36,14 @@ function Dashboard() {
             'The act of rapidly repeating syllables (like "pa-ta-ka") in a consistent rhythm. This technique is used to assess motor speech planning, coordination, and timing abilities.',
           featuresData: SR_FEATURES_DATA,
           featureList: SR_FEATURE_LIST,
+        };
+      case 'PR':
+        return {
+          title: 'Paragraph Reading Test',
+          description:
+            'The act of reading a standardized paragraph aloud. This technique is used to assess natural speech patterns, prosody, fluency, and overall communication effectiveness in a more realistic speaking context.',
+          featuresData: PR_FEATURES_DATA,
+          featureList: PR_FEATURE_LIST,
         };
       default:
         return {
@@ -66,14 +76,41 @@ function Dashboard() {
     cleanupPreviousOutput();
   }, []);
 
+  const validateAudioFiles = (filePaths) => {
+    const allowedExtensions = ['.wav', '.mp3', '.m4a'];
+    const invalidFiles = [];
+
+    for (const filePath of filePaths) {
+      const extension = filePath
+        .toLowerCase()
+        .substring(filePath.lastIndexOf('.'));
+      if (!allowedExtensions.includes(extension)) {
+        invalidFiles.push(filePath.split('/').pop());
+      }
+    }
+
+    return invalidFiles;
+  };
+
   const handleFileUpload = async () => {
     try {
       const selectedFilePaths = await window.electron.fileUpload();
       if (selectedFilePaths && selectedFilePaths.length > 0) {
+        const invalidFiles = validateAudioFiles(selectedFilePaths);
+
+        if (invalidFiles.length > 0) {
+          const fileList = invalidFiles.join(', ');
+          alert(
+            `Invalid file format(s): ${fileList}\n\nPlease select only WAV, MP3, or M4A files.`
+          );
+          return;
+        }
+
         setFilePaths(selectedFilePaths);
       }
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
-      console.error('Error selecting file:', error);
+      alert('Failed to select files. Please try again.');
     }
   };
 
@@ -111,25 +148,24 @@ function Dashboard() {
               filePaths: filePaths,
             },
           });
+          // eslint-disable-next-line no-unused-vars
         } catch (parseError) {
-          console.error('JSON parse error:', parseError);
-          console.error('Failed to parse:', cleanResult);
           // Navigate to Results with error
           navigate('/results', {
             state: {
-              error: `Failed to parse result: ${parseError.message}`,
+              error: 'Failed to process results. Please try again.',
               rawResult: cleanResult,
               testType: testType,
               filePath: filePaths,
             },
           });
         }
+        // eslint-disable-next-line no-unused-vars
       } catch (error) {
-        console.error('Processing error:', error);
         // Navigate to Results with error
         navigate('/results', {
           state: {
-            error: error.message,
+            error: 'Processing failed. Please try again.',
             testType: testType,
             filePath: filePaths,
           },
@@ -230,7 +266,7 @@ function Dashboard() {
               </p>
               {filePaths.map((filePath, index) => (
                 <p key={index} className="text-sm text-gray-500">
-                  {index + 1}. {filePath.split('/').pop()}
+                  {index + 1}. {filePath.split(/[/\\]/).pop()}
                 </p>
               ))}
             </div>
