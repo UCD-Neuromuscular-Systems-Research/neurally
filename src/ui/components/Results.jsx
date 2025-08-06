@@ -16,6 +16,13 @@ function Results() {
   const [plotLoading, setPlotLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const roundValue = (value) => {
+    if (typeof value === 'number') {
+      return Number(value.toFixed(4));
+    }
+    return value;
+  };
+
   useEffect(() => {
     // Handle multiple plots or single plot
     if (
@@ -75,7 +82,9 @@ function Results() {
     );
 
     const header = displayNames.join(',');
-    const rows = features.map((f) => keys.map((k) => f[k]).join(','));
+    const rows = features.map((f) =>
+      keys.map((k) => roundValue(f[k])).join(',')
+    );
     return [header, ...rows].join('\n');
   }
 
@@ -107,7 +116,9 @@ function Results() {
     const header = ['Filename', ...displayNames].join(',');
 
     const rows = files.map((file) => {
-      const values = featureNames.map((key) => file.features[key] || '');
+      const values = featureNames.map((key) =>
+        roundValue(file.features[key] || '')
+      );
       return [file.filename, ...values].join(',');
     });
 
@@ -142,14 +153,6 @@ function Results() {
 
   const renderFeaturesTable = (processingResult) => {
     if (!processingResult) return null;
-
-    // Helper function to round values to 4 decimal places
-    const roundValue = (value) => {
-      if (typeof value === 'number') {
-        return Number(value.toFixed(4));
-      }
-      return value;
-    };
 
     // Handle multi-file results
     if (processingResult.files && processingResult.files.length > 0) {
