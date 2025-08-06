@@ -2,10 +2,8 @@ name: Build Windows App
 
 on:
   push:
-    branches: [windows-packaging, main, master]
-  pull_request:
-    branches: [windows-packaging, main, master]
-  workflow_dispatch: # Allows manual triggering
+    branches: [windows-packaging]
+  workflow_dispatch:
 
 jobs:
   build-windows:
@@ -35,8 +33,7 @@ jobs:
       - name: Build Python executables
         run: |
           cd src/scripts
-          pyinstaller --onefile --windowed main.py --name neurally-python
-          # Copy the executable to a location electron-builder can find
+          pyinstaller --onefile --windowed --hidden-import=HD.audioProcessingHDLongitudinal --hidden-import=HD.preProcessingAudioLongitudinal --hidden-import=HD.speechFeaturesAcousticLongitudinal --hidden-import=HD.exeSpeechAnalysisLongitudinal main.py --name neurally-python
           mkdir -p ../../dist-python
           cp dist/neurally-python.exe ../../dist-python/
 
@@ -49,7 +46,7 @@ jobs:
       - name: Build Electron app
         run: npm run dist:win
 
-      - name: Upload artifacts
+      - name: Upload Windows app
         uses: actions/upload-artifact@v4
         with:
           name: windows-app
