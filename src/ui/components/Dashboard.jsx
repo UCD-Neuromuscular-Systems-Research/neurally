@@ -54,6 +54,16 @@ function Dashboard() {
     setSelectedFeature(null);
     setIsProcessing(false);
     setFilePaths([]);
+
+    const cleanupPreviousOutput = async () => {
+      try {
+        await window.electron.cleanupOutputDirectory();
+      } catch (cleanupError) {
+        console.warn('Cleanup warning:', cleanupError);
+      }
+    };
+
+    cleanupPreviousOutput();
   }, []);
 
   const handleFileUpload = async () => {

@@ -23,4 +23,6 @@ electron.contextBridge.exposeInMainWorld('electron', {
   processHD: (testType, filePaths) =>
     electron.ipcRenderer.invoke('processHD', testType, filePaths),
   invokeSomething: () => electron.ipcRenderer.invoke('invokeSomething'),
+  cleanupOutputDirectory: () =>
+    electron.ipcRenderer.invoke('cleanupOutputDirectory'),
 });
