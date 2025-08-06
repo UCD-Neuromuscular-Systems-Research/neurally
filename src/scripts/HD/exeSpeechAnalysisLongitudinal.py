@@ -15,6 +15,8 @@
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Import Libraries %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 import logging
 import os
+import matplotlib
+matplotlib.use('Agg')                                       # To make the plotting work in background
 import matplotlib.pyplot as plt
 from IPython import get_ipython
 import pandas as pd
