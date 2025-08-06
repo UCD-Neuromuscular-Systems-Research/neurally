@@ -66,6 +66,7 @@ function Results() {
         try {
           const parsed = JSON.parse(location.state.rawResult);
           setProcessingResult(parsed);
+          // eslint-disable-next-line no-unused-vars
         } catch (parseError) {
           setError('Failed to process results. Please try again.');
         }
@@ -146,6 +147,7 @@ function Results() {
       } else {
         alert('Plot not available. Please try again.');
       }
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       alert('Failed to open plot. Please try again.');
     }
@@ -302,6 +304,7 @@ function Results() {
                                 alert('Failed to save CSV. Please try again.');
                               }
                             }
+                            // eslint-disable-next-line no-unused-vars
                           } catch (error) {
                             alert('Failed to download CSV. Please try again.');
                           }
@@ -352,6 +355,7 @@ function Results() {
                                   );
                                 }
                               }
+                              // eslint-disable-next-line no-unused-vars
                             } catch (error) {
                               alert(
                                 'Failed to download plot. Please try again.'

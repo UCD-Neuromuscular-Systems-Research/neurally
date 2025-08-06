@@ -108,6 +108,7 @@ function Dashboard() {
 
         setFilePaths(selectedFilePaths);
       }
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       alert('Failed to select files. Please try again.');
     }
@@ -147,6 +148,7 @@ function Dashboard() {
               filePaths: filePaths,
             },
           });
+          // eslint-disable-next-line no-unused-vars
         } catch (parseError) {
           // Navigate to Results with error
           navigate('/results', {
@@ -158,6 +160,7 @@ function Dashboard() {
             },
           });
         }
+        // eslint-disable-next-line no-unused-vars
       } catch (error) {
         // Navigate to Results with error
         navigate('/results', {
