@@ -173,8 +173,44 @@ const createMainWindow = () => {
 
     return filePaths;
   });
+
+  ipcMain.handle('cleanupOutputDirectory', async () => {
+    cleanupOutputDirectory();
+    return { success: true };
+  });
+};
+
+const cleanupOutputDirectory = () => {
+  try {
+    const base = getBasePath();
+    const outputPath = path.join(base, 'src', 'scripts', 'output');
+
+    if (fs.existsSync(outputPath)) {
+      fs.rmSync(outputPath, { recursive: true, force: true });
+    }
+  } catch (error) {
+    console.error('Error cleaning up output directory:', error);
+  }
 };
 
 app.whenReady().then(() => {
   createMainWindow();
+});
+
+// Cleanup on app exit
+app.on('before-quit', () => {
+  cleanupOutputDirectory();
+});
+
+app.on('window-all-closed', () => {
+  cleanupOutputDirectory();
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createMainWindow();
+  }
 });
