@@ -79,6 +79,41 @@ function Results() {
     return [header, ...rows].join('\n');
   }
 
+  function allFeaturesToCSV(processingResult) {
+    if (
+      !processingResult ||
+      !processingResult.files ||
+      processingResult.files.length === 0
+    )
+      return '';
+
+    const files = processingResult.files.filter((file) => file.features);
+    if (files.length === 0) return '';
+
+    const allFeatureNames = new Set();
+    files.forEach((file) => {
+      Object.keys(file.features).forEach((key) => {
+        if (!METADATA_FIELDS.includes(key)) {
+          allFeatureNames.add(key);
+        }
+      });
+    });
+
+    const featureNames = Array.from(allFeatureNames).sort();
+    const displayNames = featureNames.map((key) =>
+      getFeatureNameWithUnits(key, testType)
+    );
+
+    const header = ['Filename', ...displayNames].join(',');
+
+    const rows = files.map((file) => {
+      const values = featureNames.map((key) => file.features[key] || '');
+      return [file.filename, ...values].join(',');
+    });
+
+    return [header, ...rows].join('\n');
+  }
+
   const openPlotInNewTab = async (plotPath, filename) => {
     try {
       const dataUrl = await window.electron.getImageDataUrl(plotPath);
@@ -232,7 +267,7 @@ function Results() {
                 {/* Download CSV row */}
                 <tr>
                   <td className="border px-3 py-2 font-semibold text-left">
-                    Download CSV
+                    Download Features
                   </td>
                   {currentFiles.map((file, fileIndex) => (
                     <td
@@ -466,6 +501,29 @@ function Results() {
         >
           Process More Files
         </button>
+        {processingResult &&
+          processingResult.files &&
+          processingResult.files.length > 1 && (
+            <button
+              onClick={() => {
+                const csvContent = allFeaturesToCSV(processingResult);
+                if (csvContent) {
+                  const blob = new Blob([csvContent], { type: 'text/csv' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `${testType}_all_results.csv`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }
+              }}
+              className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition cursor-pointer"
+            >
+              Download All
+            </button>
+          )}
       </div>
     </div>
   );
