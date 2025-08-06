@@ -563,8 +563,11 @@ class detectionFunctions:
 
     # PLOT DETECTION METHOD - updated for Sentence Boundaries in Paragraph Reading Task - 18:27 01/04/25
     def plot_detection(self, figPath, dataTKEO, startPeaks, endPeaks, adaptive_threshold = None, dataRMS = None, time_axis = None, meanRMS = None, is_syllable_repetition = True, sentence_boundaries=None, static_threshold = None):
-        plt.figure(figsize=(20, 15), constrained_layout=True) 
-        plt.suptitle(self.filename, fontsize=24)
+        # Calculate optimal figure size based on content
+        num_plots = 3 if is_syllable_repetition and dataRMS is not None and meanRMS is not None else 2
+        fig_height = 4 * num_plots  # 4 inches per plot
+        plt.figure(figsize=(16, fig_height), constrained_layout=True) 
+        plt.suptitle(self.filename, fontsize=20)
 
         # Plot 1: Speech Signal with Detected Onsets/Offsets
         plt.subplot(3, 1, 1)  # First subplot
@@ -698,7 +701,7 @@ class detectionFunctions:
                 )
             )
 
-        plt.savefig(os.path.join(figPath, self.filename + '.png'))
+        plt.savefig(os.path.join(figPath, self.filename + '.png'), bbox_inches='tight', pad_inches=0.05, dpi=300)
         plt.close()
 
         return None
