@@ -138,8 +138,9 @@ def process_audio_files(file_paths, test_type):
         if test_type not in ["SV", "SR", "PR"]:
             return {"error": f"Invalid test type: {test_type}. Must be SV, SR, or PR."}
 
-        current_dir = Path(__file__).parent
-        output_dir = current_dir / "output" / test_type
+        # Use user's home directory instead of script directory
+        home_dir = Path.home()
+        output_dir = home_dir / "Neurally_Output" / test_type
         output_dir.mkdir(parents=True, exist_ok=True)
 
         start_time = time.time()
