@@ -698,8 +698,8 @@ class detectionFunctions:
                 )
             )
 
-        plt.tight_layout()                                          
-        plt.savefig(os.path.join(figPath, self.filename + '.png'))
+        plt.tight_layout()
+        plt.savefig(os.path.join(figPath, self.filename + '.png'), dpi=300, bbox_inches='tight')
         plt.close()
 
         return None

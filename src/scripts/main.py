@@ -111,6 +111,10 @@ def process_sv_files(file_paths, output_dir):
             
             if matching_plot:
                 file_result["plot_path"] = str(matching_plot.absolute())
+            else:
+                # Fallback: try to find any plot file if exact match fails
+                if plot_files:
+                    file_result["plot_path"] = str(plot_files[0].absolute())
             
             results["files"].append(file_result)
 
@@ -204,6 +208,10 @@ def process_sr_files(file_paths, output_dir):
             
             if matching_plot:
                 file_result["plot_path"] = str(matching_plot.absolute())
+            else:
+                # Fallback: try to find any plot file if exact match fails
+                if plot_files:
+                    file_result["plot_path"] = str(plot_files[0].absolute())
             
             results["files"].append(file_result)
 
@@ -259,6 +267,10 @@ def process_pr_files(file_paths, output_dir):
             
             if matching_plot:
                 file_result["plot_path"] = str(matching_plot.absolute())
+            else:
+                # Fallback: try to find any plot file if exact match fails
+                if plot_files:
+                    file_result["plot_path"] = str(plot_files[0].absolute())
             
             results["files"].append(file_result)
         
