@@ -629,6 +629,7 @@ class detectionFunctions:
         plt.ylabel("Teager-Kaiser Energy")
         plt.legend()
         plt.title("TKEO Energy with Threshold Logic")
+        plt.xlabel("Time (seconds)")
     
         # Plot sentence boundaries (only on TKEO plot for PR task)
         if sentence_boundaries is not None and len(sentence_boundaries) > 0:
