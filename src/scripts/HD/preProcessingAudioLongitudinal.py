@@ -7,6 +7,8 @@ import numpy as np                                          # Numerical Operatio
 from scipy import signal                                    # Signal Processing
 from scipy.io import wavfile                                # Audio Processing (scipy)
 import os, librosa                                          # Audio Processing
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt                             # Plot & Visualisation
 from concurrent.futures import ProcessPoolExecutor          # Parallel Processing
 from pathlib import Path                                    # Path Management
