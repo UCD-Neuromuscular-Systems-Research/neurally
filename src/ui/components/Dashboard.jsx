@@ -6,6 +6,8 @@ import {
   SV_FEATURE_LIST,
   SR_FEATURES_DATA,
   SR_FEATURE_LIST,
+  PR_FEATURES_DATA,
+  PR_FEATURE_LIST,
 } from '../config/featuresData.js';
 import { getFeatureTitleWithUnits } from '../utils/getFeatureNameWithUnits.js';
 
@@ -34,6 +36,14 @@ function Dashboard() {
             'The act of rapidly repeating syllables (like "pa-ta-ka") in a consistent rhythm. This technique is used to assess motor speech planning, coordination, and timing abilities.',
           featuresData: SR_FEATURES_DATA,
           featureList: SR_FEATURE_LIST,
+        };
+      case 'PR':
+        return {
+          title: 'Paragraph Reading Test',
+          description:
+            'The act of reading a standardized paragraph aloud. This technique is used to assess natural speech patterns, prosody, fluency, and overall communication effectiveness in a more realistic speaking context.',
+          featuresData: PR_FEATURES_DATA,
+          featureList: PR_FEATURE_LIST,
         };
       default:
         return {
