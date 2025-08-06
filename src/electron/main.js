@@ -162,7 +162,13 @@ const createMainWindow = () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       properties: ['openFile', 'multiSelections'],
       filters: [
-        { name: 'WAV Audio Files', extensions: ['wav', 'WAV'] },
+        {
+          name: 'Audio Files',
+          extensions: ['wav', 'mp3', 'm4a', 'WAV', 'MP3', 'M4A'],
+        },
+        { name: 'WAV Files', extensions: ['wav', 'WAV'] },
+        { name: 'MP3 Files', extensions: ['mp3', 'MP3'] },
+        { name: 'M4A Files', extensions: ['m4a', 'M4A'] },
         { name: 'All Files', extensions: ['*'] },
       ],
     });

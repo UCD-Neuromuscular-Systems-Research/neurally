@@ -76,10 +76,36 @@ function Dashboard() {
     cleanupPreviousOutput();
   }, []);
 
+  const validateAudioFiles = (filePaths) => {
+    const allowedExtensions = ['.wav', '.mp3', '.m4a'];
+    const invalidFiles = [];
+
+    for (const filePath of filePaths) {
+      const extension = filePath
+        .toLowerCase()
+        .substring(filePath.lastIndexOf('.'));
+      if (!allowedExtensions.includes(extension)) {
+        invalidFiles.push(filePath.split('/').pop());
+      }
+    }
+
+    return invalidFiles;
+  };
+
   const handleFileUpload = async () => {
     try {
       const selectedFilePaths = await window.electron.fileUpload();
       if (selectedFilePaths && selectedFilePaths.length > 0) {
+        const invalidFiles = validateAudioFiles(selectedFilePaths);
+
+        if (invalidFiles.length > 0) {
+          const fileList = invalidFiles.join(', ');
+          alert(
+            `Invalid file format(s): ${fileList}\n\nPlease select only WAV, MP3, or M4A files.`
+          );
+          return;
+        }
+
         setFilePaths(selectedFilePaths);
       }
     } catch (error) {
