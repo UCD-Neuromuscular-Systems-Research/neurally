@@ -43,6 +43,16 @@ const getMainScriptPath = () => {
 
 const createPythonProcess = (executable, scriptPath, args, env = {}) => {
   return new Promise((resolve, reject) => {
+    // Check if executable exists
+    if (!fs.existsSync(executable)) {
+      reject({
+        message: 'Processing component not found',
+        details: `Executable not found: ${executable}`,
+        code: -1
+      });
+      return;
+    }
+
     const processEnv = { ...process.env, ...env };
 
     if (app.isPackaged) {
@@ -68,7 +78,22 @@ const createPythonProcess = (executable, scriptPath, args, env = {}) => {
       if (code === 0) {
         resolve(output.trim());
       } else {
-        reject(error || output);
+        // Provide more specific error messages based on common issues
+        let errorMessage = 'Internal processing error';
+        
+        if (error.includes('No module named')) {
+          errorMessage = 'Module configuration error';
+        } else if (error.includes('File not found') || error.includes('No such file')) {
+          errorMessage = 'File access error';
+        } else if (error.includes('Permission denied')) {
+          errorMessage = 'Permission error';
+        }
+        
+        reject({
+          message: errorMessage,
+          details: error || output,
+          code: code
+        });
       }
     });
   });
@@ -169,7 +194,12 @@ const createMainWindow = () => {
       return result;
     } catch (error) {
       console.log('Python error: ', error);
-      throw error;
+      // Return a user-friendly error message instead of throwing technical details
+      return {
+        status: 'error',
+        message: 'Internal error occurred during processing. Please try again.',
+        details: app.isPackaged ? null : error.toString() // Only show details in development
+      };
     }
   });
 
