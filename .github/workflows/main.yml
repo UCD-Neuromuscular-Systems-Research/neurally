@@ -2,63 +2,63 @@ name: Build Windows App
 
 on:
   push:
-    branches: [main, master]
+    branches: [windows-packaging, main, master]
   pull_request:
-    branches: [main, master]
+    branches: [windows-packaging, main, master]
   workflow_dispatch: # Allows manual triggering
 
 jobs:
   build-windows:
     runs-on: windows-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-        
-    - name: Install Python dependencies
-      run: |
-        cd src/scripts
-        pip install -r requirements.txt
-        pip install pyinstaller
-        
-    - name: Build Python executables
-      run: |
-        cd src/scripts
-        pyinstaller --onefile --windowed main.py --name neurally-python
-        # Copy the executable to a location electron-builder can find
-        mkdir -p ../../dist-python
-        cp dist/neurally-python.exe ../../dist-python/
-        
-    - name: Install npm dependencies
-      run: npm ci
-      
-    - name: Build React app
-      run: npm run build
-      
-    - name: Build Electron app
-      run: npm run dist:win
-      
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: windows-app
-        path: dist/*.exe
-        retention-days: 30
-        
-    - name: Upload MSI installer
-      uses: actions/upload-artifact@v4
-      with:
-        name: windows-msi
-        path: dist/*.msi
-        retention-days: 30 
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Python dependencies
+        run: |
+          cd src/scripts
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build Python executables
+        run: |
+          cd src/scripts
+          pyinstaller --onefile --windowed main.py --name neurally-python
+          # Copy the executable to a location electron-builder can find
+          mkdir -p ../../dist-python
+          cp dist/neurally-python.exe ../../dist-python/
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build React app
+        run: npm run build
+
+      - name: Build Electron app
+        run: npm run dist:win
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-app
+          path: dist/*.exe
+          retention-days: 30
+
+      - name: Upload MSI installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msi
+          path: dist/*.msi
+          retention-days: 30
