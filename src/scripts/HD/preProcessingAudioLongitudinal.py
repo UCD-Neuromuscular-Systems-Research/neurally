@@ -699,7 +699,13 @@ class detectionFunctions:
             )
 
         plt.tight_layout()
-        plt.savefig(os.path.join(figPath, self.filename + '.png'), dpi=300, bbox_inches='tight')
+        
+        # Ensure the directory exists before saving
+        os.makedirs(figPath, exist_ok=True)
+        
+        # Save plot with original filename to help with matching
+        plot_filename = self.filename + '.png'
+        plt.savefig(os.path.join(figPath, plot_filename), dpi=300, bbox_inches='tight')
         plt.close()
 
         return None
