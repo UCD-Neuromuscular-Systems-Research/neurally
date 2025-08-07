@@ -594,23 +594,12 @@ class featuresTable():
         self.df = self.participantInfo()
         self.dfFeatures = pd.DataFrame()
 
-    # PARTICIPANT INFO
+    # CREATE BASIC DATAFRAME
     def participantInfo(self):
-        if self.group == "Control" or self.group == "HD":
-            studyID, deviceName, testName = zip(*[(self.filenames[i].split("_")[0], 
-                                      self.filenames[i].split("_")[-1], self.filenames[i].split("_")[1]) for i in range(len(self.filenames))])
-            dfInfo = pd.read_csv(os.path.join(self.dataPath, 'participantInfo.csv'))
-            dfInfo.drop('device', axis=1, inplace=True)
-            df = pd.concat((dfInfo.loc[dfInfo['participant']==i, :]) for i in studyID).reset_index(drop=True)
-            df.insert(0, 'filename', self.filenames)
-            df.insert(2, 'test', testName)
-            df.loc[:,'device'] = deviceName
-        else:
-            studyID = [self.filenames[i].split("_")[0] for i in range(len(self.filenames))]
-            dfInfo = pd.read_csv(os.path.join(self.dataPath, 'participantInfo.csv'))
-            df = pd.concat((dfInfo.loc[dfInfo['participant']==i, :]) for i in studyID).reset_index(drop=True)
-            df.insert(0, 'filename', self.filenames)
-            df.insert(2, 'test', self.speechTest)
+        # Create a simple dataframe with filename and test information
+        df = pd.DataFrame()
+        df['filename'] = self.filenames
+        df['test'] = self.speechTest
         return df
     
     # GET FEATURES SV:

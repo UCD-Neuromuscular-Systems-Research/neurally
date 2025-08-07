@@ -3,7 +3,6 @@ import sys
 import json
 from pathlib import Path
 import time
-import csv
 import shutil
 
 sys.path.append(str(Path(__file__).parent / "HD"))
@@ -54,12 +53,7 @@ def setup_temp_directory(file_paths, test_type, output_dir):
         temp_file = temp_dir / unique_name
         shutil.copy2(file_path, temp_file)
 
-    participant_info_path = temp_dir / "participantInfo.csv"
-    with open(participant_info_path, "w", newline="") as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(["participant"])
-        for i in range(len(file_paths)):
-            writer.writerow([f"File_{i+1}"])
+
 
     return temp_dir
 
