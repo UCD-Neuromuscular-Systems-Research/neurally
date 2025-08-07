@@ -70,8 +70,21 @@ const executeHD = async (testType, filePaths, isMultiple = false) => {
   return createPythonProcess(pythonExe, scriptPath, args);
 };
 
-// TODO: Make this normal size once, the app is properly styled responsively
 const createMainWindow = () => {
+  const preloadPath = getPreloadPath();
+  if (!fs.existsSync(preloadPath)) {
+    if (app.isPackaged) {
+      dialog.showErrorBox(
+        'Startup error',
+        'Required preload file is missing. Please reinstall the app.'
+      );
+      app.quit();
+      return;
+    } else {
+      console.error('Preload missing:', preloadPath);
+    }
+  }
+
   const mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -85,7 +98,9 @@ const createMainWindow = () => {
   if (isDev()) {
     mainWindow.loadURL('http://localhost:5123');
   } else {
-    mainWindow.loadFile(path.join(app.getAppPath() + '/dist-react/index.html'));
+    mainWindow.loadFile(
+      path.join(app.getAppPath(), 'dist-react', 'index.html')
+    );
   }
 
   sendDataToBackend(mainWindow);
