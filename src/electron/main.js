@@ -131,7 +131,7 @@ const createMainWindow = () => {
     // fullscreen: true,
     resizable: false,
     webPreferences: {
-      preload: getPreloadPath(),
+      preload: preloadPath,
     },
   });
 
