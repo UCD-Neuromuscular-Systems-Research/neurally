@@ -39,7 +39,7 @@ A comprehensive desktop application for clinical speech analysis and assessment,
    cd neurally
    ```
 
-2. **Install Node.js dependencies**
+2. **Install React, Node JS dependencies**
 
    ```bash
    npm install
