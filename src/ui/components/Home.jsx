@@ -1,7 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 function Home() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
       <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">
@@ -33,7 +35,10 @@ function Home() {
         </Link>
       </div>
 
-      <button className="flex items-center space-x-1 text-sm text-zinc-500 hover:underline cursor-pointer">
+      <button
+        onClick={() => navigate('/tutorial')}
+        className="flex items-center space-x-1 text-sm text-zinc-500 hover:underline cursor-pointer"
+      >
         <span>Tutorial of the app</span>
         <span className="text-xs cursor-pointer">↗</span>
       </button>
