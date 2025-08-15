@@ -4,6 +4,7 @@ import './index.css';
 import Home from './components/Home.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import Results from './components/Results.jsx';
+import Tutorial from './components/Tutorial.jsx';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 
 const router = createMemoryRouter([
@@ -18,6 +19,10 @@ const router = createMemoryRouter([
   {
     path: '/results',
     Component: Results,
+  },
+  {
+    path: '/tutorial',
+    Component: Tutorial,
   },
 ]);
 
