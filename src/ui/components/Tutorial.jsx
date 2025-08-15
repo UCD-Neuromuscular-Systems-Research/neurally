@@ -206,6 +206,26 @@ function Tutorial() {
           </div>
         </div>
 
+        {/* Reference Section */}
+        <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 className="text-lg font-semibold text-blue-800 mb-3">
+            Research Foundation
+          </h3>
+          <p className="text-sm text-blue-800">
+            <strong>Reference:</strong> The speech processing algorithms
+            implemented in Neurally are based on research by Ruth Filan and
+            Vitória dos Santos Fahed. For more information, see:{' '}
+            <a
+              href="https://pubs.asha.org/doi/full/10.1044/2024_AJSLP-23-00175"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 underline"
+            >
+              https://pubs.asha.org/doi/full/10.1044/2024_AJSLP-23-00175
+            </a>
+          </p>
+        </div>
+
         {/* Get Started Button */}
         <div className="mt-8 text-center">
           <button
