@@ -8,6 +8,9 @@ A comprehensive desktop application for clinical speech analysis and assessment,
   - **Syllable Repetition (SR)**: Assesses speech motor control
   - **Paragraph Reading (PR)**: Evaluates connected speech production
 
+ ## Contact email:
+ krishnatejajinka@gmail.com
+
 ## Architecture
 
 ### Frontend (React + Electron)
